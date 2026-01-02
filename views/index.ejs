@@ -1,0 +1,3363 @@
+<!DOCTYPE html>
+<html lang="id">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>AgendaCerdas - <%= calendarName %></title>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/choices.js/public/assets/styles/choices.min.css"
+    />
+    <script src="https://cdn.jsdelivr.net/npm/choices.js/public/assets/scripts/choices.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.10/index.global.min.js"></script>
+    <link
+      rel="stylesheet"
+      type="text/css"
+      href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css"
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+
+    <style>
+      * {
+        font-family: "Inter", sans-serif;
+      }
+
+      /* Custom Calendar Styling */
+      .fc {
+        font-family: "Inter", sans-serif;
+      }
+
+      .fc .fc-button-primary {
+        background-color: #60a5fa !important;
+        border-color: #60a5fa !important;
+        color: white !important;
+        font-weight: 600;
+        text-transform: capitalize;
+        padding: 0.5rem 1rem !important;
+        border-radius: 0.5rem !important;
+        transition: all 0.3s ease;
+      }
+
+      .fc .fc-button-primary:hover {
+        background-color: #3b82f6 !important;
+        border-color: #3b82f6 !important;
+        box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+      }
+
+      .fc .fc-button-primary.fc-button-active {
+        background-color: #3b82f6 !important;
+        border-color: #3b82f6 !important;
+        box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+      }
+
+      .fc .fc-daygrid-day.fc-day-other {
+        background-color: #f9fafb;
+      }
+
+      .fc .fc-daygrid-day {
+        background-color: white;
+        border-color: #e5e7eb;
+      }
+
+      .fc .fc-daygrid-day:hover {
+        background-color: #f0f9ff;
+        transition: background-color 0.2s ease;
+      }
+
+      .fc .fc-daygrid-day.fc-day-today {
+        background-color: #dbeafe;
+      }
+
+      .fc .fc-daygrid-day-frame {
+        background-color: transparent;
+        padding: 4px !important;
+      }
+
+      /* ===== CUSTOM EVENT STYLING ===== */
+            .fc .fc-daygrid-event {
+              padding: 4px 6px !important;
+              border-radius: 6px !important;
+              border: none !important;
+              font-size: 0.7rem !important;
+              font-weight: 600 !important;
+              overflow: visible !important;
+              text-overflow: ellipsis !important;
+              line-height: 1.3 !important;
+              margin-bottom: 2px !important;
+              opacity: 0.95 !important;
+              transition: all 0.2s ease !important;
+              white-space: normal !important;
+              display: block !important;
+              max-height: none !important;
+            }
+
+      .fc .fc-event-title {
+        padding: 0 !important;
+        font-size: 0.7rem !important;
+        font-weight: 600 !important;
+        line-height: 1.3 !important;
+        white-space: normal !important;
+      }
+
+      .fc .fc-daygrid-event-dot {
+        display: none !important;
+      }
+
+      /* Event Dot Styling */
+      .fc .fc-daygrid-event.fc-event {
+        border-color: transparent !important;
+      }
+
+      /* Hover effect */
+      .fc .fc-daygrid-event:hover {
+        opacity: 1 !important;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15) !important;
+        transform: translateY(-1px) !important;
+        max-height: none !important;
+      }
+
+      /* Event spacing */
+      .fc .fc-daygrid-day-frame {
+        padding: 3px 2px !important;
+      }
+
+      .fc .fc-daygrid-day-events {
+        margin: 0 !important;
+      }
+
+      .fc .fc-daygrid-event-harness {
+        margin-bottom: 1px !important;
+      }
+
+      /* HAPUS INI SEPENUHNYA AGAR WARNA DARI SERVER BISA MUNCUL */
+      /* .fc .fc-daygrid-event {
+        background: var(--fc-event-bg-color) !important;
+        border-color: var(--fc-event-border-color) !important;
+        color: var(--fc-event-text-color) !important;
+    } */
+
+      .fc .fc-event:hover {
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15) !important;
+      }
+
+      .fc .fc-col-header {
+        background-color: #f3f4f6;
+        border-color: #e5e7eb;
+      }
+
+      .fc .fc-col-header-cell {
+        color: #374151;
+        font-weight: 700;
+        padding: 1rem 0 !important;
+        text-transform: capitalize;
+      }
+
+      .fc .fc-daygrid-day-number {
+        color: #1f2937;
+        font-weight: 600;
+        padding: 0.5rem !important;
+      }
+
+      .fc-daygrid-day-number.fc-col-header-cell {
+        padding: 0.5rem !important;
+      }
+
+      /* Scrollbar Custom */
+      .drawer-scroll::-webkit-scrollbar {
+        width: 6px;
+      }
+      .drawer-scroll::-webkit-scrollbar-track {
+        background: #f1f5f9;
+      }
+      .drawer-scroll::-webkit-scrollbar-thumb {
+        background-color: #cbd5e1;
+        border-radius: 3px;
+      }
+      .drawer-scroll::-webkit-scrollbar-thumb:hover {
+        background-color: #94a3b8;
+      }
+
+      /* Button Hover Effects */
+      .btn-smooth {
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      }
+
+      .btn-smooth:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+      }
+
+      .btn-smooth:active {
+        transform: translateY(0);
+      }
+
+      /* Drawer Shadow */
+      .drawer-shadow {
+        box-shadow: -10px 0 30px rgba(0, 0, 0, 0.1);
+      }
+
+      /* Style untuk event hari libur */
+      .holiday-event {
+        font-weight: bold !important;
+      }
+
+      .holiday-event .fc-event-title {
+        padding: 2px 4px;
+        border-radius: 3px;
+      }
+
+      /* Highlight di month view */
+      .fc-daygrid-day-frame .holiday-event {
+        background-color: #fee2e2 !important;
+      }
+
+      .fc-daygrid-event.holiday-event {
+        background-color: #fee2e2 !important;
+        border-color: transparent !important;
+        color: #991b1b !important;
+        font-weight: bold !important;
+      }
+
+      .fc-daygrid-event.holiday-event .fc-event-title {
+        color: #7f1d1d !important;
+        font-size: 0.85em !important;
+      }
+
+      .holiday-event .fc-event-title::before {
+        content: "🔴 ";
+      }
+      .fc .fc-event-time {
+        display: none !important;
+      }
+          /* Tambahkan di dalam tag <style> */
+    
+    /* Sidebar Upcoming Events */
+    #upcomingEventsList {
+      scrollbar-width: thin;
+      scrollbar-color: #cbd5e1 #f1f5f9;
+    }
+    
+    #upcomingEventsList::-webkit-scrollbar {
+      width: 6px;
+    }
+    
+    #upcomingEventsList::-webkit-scrollbar-track {
+      background: #f1f5f9;
+    }
+    
+    #upcomingEventsList::-webkit-scrollbar-thumb {
+      background-color: #cbd5e1;
+      border-radius: 3px;
+    }
+    
+    #upcomingEventsList::-webkit-scrollbar-thumb:hover {
+      background-color: #94a3b8;
+    }
+    
+    /* Event Card Styling - BARU */
+    .event-card-new {
+      padding: 12px;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      background-color: #f8fafc;
+      border: 1px solid #e2e8f0;
+    }
+    
+    .event-card-new:hover {
+      transform: translateX(4px);
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+      border-color: #cbd5e1;
+    }
+    
+    .event-card-time {
+      font-size: 0.75rem;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      margin-bottom: 4px;
+    }
+    
+    .event-card-title {
+      font-size: 0.875rem;
+      font-weight: 600;
+      color: #1f2937;
+      margin-bottom: 4px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    
+    .event-card-room {
+      font-size: 0.7rem;
+      color: #6b7280;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+    
+    .filter-btn.active {
+      background-color: #dbeafe !important;
+      color: #1e40af !important;
+      border-color: #60a5fa !important;
+    }
+    </style>
+  </head>
+  <body class="bg-blue-50 text-gray-800 h-screen flex flex-col overflow-hidden">
+    <!-- HEADER -->
+    <header class="bg-white/80 backdrop-blur-lg border-b border-blue-100 sticky top-0 z-50 shadow-sm">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
+        <!-- Logo & Calendar Name -->
+        <div class="flex items-center gap-3">
+          <div class="bg-blue-400 text-white p-3 rounded-2xl shadow-lg shadow-blue-400/30 icon-bounce">
+            <i class="fas fa-calendar-days text-xl"></i>
+          </div>
+          <div class="flex items-center gap-2">
+            <div class="flex flex-col">
+              <h1 id="calendarTitle" class="text-xl md:text-2xl font-bold text-gray-900 cursor-pointer hover:text-blue-600 transition group" onclick="startEditCalendarName()">
+                <%= calendarName %>
+              </h1>
+              <input
+                type="text"
+                id="calendarNameInput"
+                class="hidden text-xl md:text-2xl font-bold border-2 border-blue-400 rounded-lg px-3 py-1 focus:outline-none focus:border-blue-600"
+                value="<%= calendarName %>"
+              />
+              <p class="text-sm text-blue-400 font-semibold tracking-wide">
+                AgendaCerdas
+              </p>
+            </div>
+            <button
+              id="editCalendarNameBtn"
+              onclick="startEditCalendarName()"
+              class="text-blue-400 hover:text-blue-600 hover:bg-blue-50 p-2 rounded-lg transition ml-2"
+              title="Edit nama kalender"
+            >
+              <i class="fas fa-edit text-lg"></i>
+            </button>
+          </div>
+        </div>
+        
+            <!-- Room Filters & Actions -->
+            <div class="flex items-center gap-2 sm:gap-3">
+              <!-- Filter Ruangan: Sekarang selalu terlihat di semua device -->
+              <div class="relative">
+                <select
+                  id="roomFilterDropdown"
+                  class="px-3 py-2 rounded-xl border-2 border-blue-400 focus:border-blue-500 focus:outline-none focus:ring-4 focus:ring-blue-100 transition bg-white font-medium text-sm"
+                  style="padding-right: 28px; appearance: none;"
+                >
+                  <option value="all" data-color="#60a5fa">Semua Ruangan</option>
+                </select>
+                <span class="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-gray-700">
+                  <i class="fas fa-chevron-down"></i>
+                </span>
+              </div>
+    
+              <!-- Info Button -->
+              <a href="/<%= calendarName %>/analytics"
+                class="bg-blue-100 hover:bg-blue-200 text-blue-600 p-2.5 rounded-xl transition btn-smooth"
+                title="Analytics & Rekapan"
+              >
+                <i class="fas fa-chart-bar text-lg"></i>
+              </a>
+    
+              <!-- Generate Holidays Button -->
+              <button
+                id="btnGenerateHolidays"
+                class="bg-green-100 hover:bg-green-200 text-green-600 p-2.5 rounded-xl transition btn-smooth"
+                title="Generate Hari Libur"
+              >
+                <i class="fas fa-calendar-check text-lg"></i>
+              </button>
+    
+              <!-- Settings Button -->
+              <button
+                onclick="openSettingsModal()"
+                class="bg-gray-100 hover:bg-gray-200 text-gray-700 p-2.5 rounded-xl transition btn-smooth"
+                title="Pengaturan"
+              >
+                <i class="fas fa-sliders text-lg"></i>
+              </button>
+    
+              <!-- Back to Calendar List Button -->
+              <button
+                onclick="window.location.href='/'"
+                class="bg-purple-100 hover:bg-purple-200 text-purple-600 p-2.5 rounded-xl transition btn-smooth"
+                title="Kembali ke List Kalender"
+              >
+                <i class="fas fa-list text-lg"></i>
+              </button>
+            </div>
+          </div>
+        </header>
+    
+      </div>
+    </header>
+
+    
+
+    
+        <!-- ========== MAIN CONTAINER: SIDEBAR + CALENDAR ========== -->
+        <div class="flex flex-1 overflow-hidden">
+          <!-- ========== SIDEBAR KIRI: UPCOMING EVENTS ========== -->
+          <!-- ✅ PERBAIKI: Sembunyikan di mobile, tampilkan di desktop -->
+          <aside id="upcomingEventsSidebar" class="fixed inset-y-0 left-0 z-50 w-80 bg-white border-r border-gray-100 flex flex-col h-full overflow-hidden shadow-sm transform -translate-x-full md:translate-x-0 md:relative md:flex md:w-80 transition-transform duration-300 ease-in-out">
+            <!-- Header Sidebar -->
+            <div class="px-6 py-5 border-b border-gray-100">
+              <div class="flex items-center justify-between mb-4">
+                <h2 class="text-lg font-bold text-gray-900 flex items-center gap-2">
+                  <i class="fas fa-calendar-alt text-blue-400"></i> Daftar Agenda
+                </h2>
+                <!-- ✅ TAMBAH: Tombol Share Summary -->
+                <button
+                  onclick="openEventSummaryModal()"
+                  class="text-blue-500 hover:text-blue-700 hover:bg-blue-50 p-2 rounded-lg transition"
+                  title="Bagikan ringkasan agenda hari ini"
+                >
+                  <i class="fas fa-share-alt text-lg"></i>
+                </button>
+              </div>
+              
+              <!-- Filter Buttons -->
+              <div class="flex flex-wrap gap-2">
+                <button
+                  onclick="filterUpcomingEvents('today')"
+                  class="filter-btn px-3 py-1.5 rounded-lg text-xs font-bold transition border-2 bg-blue-50 text-blue-600 border-blue-300 active"
+                  data-filter="today"
+                >
+                  <i class="fas fa-calendar-day mr-1"></i> Hari Ini
+                </button>
+                <button
+                  onclick="filterUpcomingEvents('week')"
+                  class="filter-btn px-3 py-1.5 rounded-lg text-xs font-bold transition border-2 bg-gray-50 text-gray-600 border-gray-200 hover:border-blue-300"
+                  data-filter="week"
+                >
+                  <i class="fas fa-calendar-week mr-1"></i> Minggu
+                </button>
+                <button
+                  onclick="filterUpcomingEvents('month')"
+                  class="filter-btn px-3 py-1.5 rounded-lg text-xs font-bold transition border-2 bg-gray-50 text-gray-600 border-gray-200 hover:border-blue-300"
+                  data-filter="month"
+                >
+                  <i class="fas fa-calendar mr-1"></i> Bulan
+                </button>
+                <button
+                  onclick="filterUpcomingEvents('year')"
+                  class="filter-btn px-3 py-1.5 rounded-lg text-xs font-bold transition border-2 bg-gray-50 text-gray-600 border-gray-200 hover:border-blue-300"
+                  data-filter="year"
+                >
+                  <i class="fas fa-calendar-check mr-1"></i> Tahun
+                </button>
+                <button
+                  onclick="filterUpcomingEvents('all')"
+                  class="filter-btn px-3 py-1.5 rounded-lg text-xs font-bold transition border-2 bg-gray-50 text-gray-600 border-gray-200 hover:border-blue-300"
+                  data-filter="all"
+                >
+                  <i class="fas fa-list mr-1"></i> Semua
+                </button>
+              </div>
+            </div>
+        
+            <!-- Events List (Scrollable) -->
+            <div id="upcomingEventsList" class="flex-1 overflow-y-auto px-4 py-4 space-y-3">
+              <!-- Events akan di-render di sini oleh JavaScript -->
+              <div class="text-center py-12 text-gray-400">
+                <i class="fas fa-inbox text-4xl mb-3 block opacity-30"></i>
+                <p class="text-sm">Tidak ada acara</p>
+              </div>
+            </div>
+
+          </aside>
+        
+            <!-- ========== MAIN CONTENT: CALENDAR ========== -->
+          <main class="flex-1 overflow-hidden relative flex flex-col">
+            <div class="flex-1 overflow-y-auto p-4 md:p-6 relative">
+              <div
+                class="max-w-full mx-auto bg-white p-4 md:p-6 rounded-2xl shadow-lg h-full flex flex-col border border-gray-100"
+              >
+                <!-- ✅ TAMBAH: Hamburger Menu untuk Mobile (di atas kalender, dalam satu div) -->
+                <div class="md:hidden mb-4">
+                  <button
+                    onclick="toggleUpcomingSidebar()"
+                    class="bg-blue-100 hover:bg-blue-200 text-blue-600 p-2 rounded-lg transition btn-smooth"
+                    title="Buka Acara Mendatang"
+                  >
+                    <i class="fas fa-bars text-lg"></i>
+                  </button>
+                </div>
+
+                <!-- Calendar Header dengan Month/Year Picker -->
+                <div class="mb-4 flex items-center justify-between">
+                  <div class="flex items-center gap-2 md:gap-3">
+                    <label
+                      class="text-sm md:text-base font-bold text-gray-700 flex items-center gap-2"
+                    >
+                      <i class="fas fa-calendar text-blue-400"></i> Pilih Bulan &
+                      Tahun
+                    </label>
+                    <div class="flex gap-2">
+                      <input
+                        type="month"
+                        id="monthYearPicker"
+                        class="rounded-lg border-2 border-blue-300 px-3 md:px-4 py-2 text-sm md:text-base font-semibold focus:outline-none focus:border-blue-500"
+                      />
+                      <button
+                        onclick="resetToToday()"
+                        class="bg-blue-100 hover:bg-blue-200 text-blue-600 px-3 md:px-4 py-2 text-sm md:text-base font-bold rounded-xl transition btn-smooth"
+                        title="Kembali ke Hari Ini"
+                      >
+                        <i class="fas fa-redo"></i> Hari Ini
+                      </button>
+                    </div>
+                  </div>
+
+                  <!-- Tombol Tambah Event & Ruangan -->
+                  <div class="flex items-center gap-2 md:gap-3">
+                    <button
+                      onclick="openAddModalTabs()"
+                      class="bg-blue-400 hover:bg-blue-500 text-white p-3 rounded-full text-lg transition btn-smooth shadow-lg flex items-center justify-center w-12 h-12"
+                      title="Tambah Event atau Ruangan"
+                    >
+                      <i class="fas fa-plus"></i>
+                    </button>
+                  </div>
+                </div>
+
+                <!-- CALENDAR ELEMENT -->
+                <div id="calendar" class="flex-1"></div>
+                <!-- ========== ROOM COLOR LEGEND ========== -->
+                <div id="roomLegend" class="mt-4 p-2 bg-gray-50 rounded-lg hidden w-full">
+                  <h3 class="text-sm font-bold text-gray-900 mb-3 flex items-center gap-2">
+                    <i class="fas fa-palette text-blue-400"></i> Keterangan Warna
+                  </h3>
+                  <div id="roomLegendList" class="grid grid-cols-3 md:grid-cols-6 lg:grid-cols-9 gap-2"></div>
+                </div>
+              </div>
+            </div>
+          </main>
+        </div>
+        
+        <!-- ✅ TAMBAH: Overlay untuk Sidebar Mobile -->
+        <div id="upcomingSidebarOverlay" class="fixed inset-0 bg-gray-900 bg-opacity-30 z-40 hidden md:hidden" onclick="closeUpcomingSidebar()"></div>
+<!-- ========== MODAL: ADD EVENT OR ROOM (TABS) ========== -->
+<div
+  id="addModalTabs"
+  class="fixed inset-0 z-50 hidden backdrop-blur-sm"
+  role="dialog"
+  aria-modal="true"
+>
+  <div
+    class="fixed inset-0 bg-gray-900 bg-opacity-40 transition-opacity"
+  ></div>
+  <div
+    class="fixed inset-0 z-10 overflow-y-auto flex items-center justify-center p-4"
+  >
+    <div
+      class="modal-content relative transform overflow-hidden rounded-2xl bg-white text-left shadow-2xl w-full max-w-2xl flex flex-col max-h-[90vh]"
+    >
+      <!-- Header TANPA GRADIENT -->
+      <div class="bg-blue-400 px-6 py-5 flex justify-between items-center flex-shrink-0">
+        <div>
+          <h3 class="text-2xl font-bold text-white flex items-center gap-2">
+            <i class="fas fa-plus-circle"></i> Tambah
+          </h3>
+        </div>
+        <button
+          onclick="closeAddModalTabs()"
+          class="text-white hover:text-gray-100 transition text-2xl"
+        >
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+
+      <!-- Tab Navigation - WARNA KONSISTEN -->
+      <div class="flex gap-0 border-b border-gray-200 bg-gray-50 px-6">
+        <button
+          onclick="switchTab('event')"
+          id="tab-event"
+          class="tab-btn active px-6 py-4 text-sm font-bold border-b-4 border-blue-400 text-blue-600 transition hover:text-blue-700"
+        >
+          <i class="fas fa-calendar-plus mr-2"></i> Event
+        </button>
+        <button
+          onclick="switchTab('reminder')"
+          id="tab-reminder"
+          class="tab-btn px-6 py-4 text-sm font-bold border-b-4 border-transparent text-gray-600 transition hover:text-blue-600"
+        >
+          <i class="fas fa-bell mr-2"></i> Pengingat
+        </button>
+        <button
+          onclick="switchTab('room')"
+          id="tab-room"
+          class="tab-btn px-6 py-4 text-sm font-bold border-b-4 border-transparent text-gray-600 transition hover:text-blue-600"
+        >
+          <i class="fas fa-door-open mr-2"></i> Ruangan
+        </button>
+          <button
+    onclick="switchTab('holiday')"
+    id="tab-holiday"
+    class="tab-btn px-6 py-4 text-sm font-bold border-b-4 border-transparent text-gray-600 transition hover:text-blue-600"
+  >
+    <i class="fas fa-calendar-check mr-2"></i> Hari Libur
+  </button>
+      </div>
+
+      <!-- Tab Content -->
+      <div class="flex-1 overflow-y-auto">
+        <!-- TAB 1: ADD EVENT -->
+        <div id="tab-content-event" class="tab-content px-6 py-8">
+          <form id="addEventFormTabs" class="space-y-5">
+            <!-- Grid 2 Kolom -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+              <!-- Ruangan (Full Width) -->
+              <div class="md:col-span-2">
+                <label class="block text-sm font-bold text-gray-700 mb-2">
+                  <i class="fas fa-door-open text-blue-400 mr-2"></i>Ruangan
+                  <span class="text-red-500">*</span>
+                </label>
+                <select
+                  name="room_id"
+                  class="w-full rounded-lg border-2 border-gray-200 focus:border-blue-400 focus:outline-none p-3 transition bg-gray-50"
+                  required
+                >
+                  <option value="">-- Pilih Ruangan --</option>
+                </select>
+
+                  <!-- ✅ TAMBAH: Peringatan Jadwal Bentrok -->
+  <div id="addEventTabsConflictWarning" class="hidden mt-3 bg-red-50 border-l-4 border-red-500 p-3 rounded">
+  <div class="flex items-start gap-2">
+    <i class="fas fa-exclamation-circle text-red-600 text-lg mt-0.5 flex-shrink-0"></i>
+    <div>
+      <p class="text-sm font-bold text-red-700">Jadwal Bentrok!</p>
+      <p class="text-xs text-red-600 mt-1">Ruangan ini sudah dipesan pada waktu tersebut.</p>
+      <p class="text-xs text-red-500 mt-1 font-semibold">Jadwal bentrok TIDAK diizinkan di kalender ini.</p>
+    </div>
+  </div>
+</div>
+              </div>
+
+              <!-- Judul Event (Full Width) -->
+              <div class="md:col-span-2">
+                <label class="block text-sm font-bold text-gray-700 mb-2">
+                  <i class="fas fa-heading text-blue-400 mr-2"></i>Judul Event
+                  <span class="text-red-500">*</span>
+                </label>
+                <input
+                  type="text"
+                  name="title"
+                  class="w-full rounded-lg border-2 border-gray-200 focus:border-blue-400 focus:outline-none p-3 transition bg-gray-50"
+                  placeholder="Cth: Rapat Rutin"
+                  required
+                />
+              </div>
+
+              <!-- Tanggal (Kolom 1) -->
+              <div>
+                <label class="block text-sm font-bold text-gray-700 mb-2">
+                  <i class="fas fa-calendar text-blue-400 mr-2"></i>Tanggal
+                  <span class="text-red-500">*</span>
+                </label>
+                <input
+                  type="date"
+                  name="event_date"
+                  class="w-full rounded-lg border-2 border-gray-200 focus:border-blue-400 focus:outline-none p-3 transition bg-gray-50"
+                  required
+                />
+              </div>
+
+              <!-- Waktu Mulai (Kolom 2) -->
+              <div>
+                <label class="block text-sm font-bold text-gray-700 mb-2">
+                  <i class="fas fa-play-circle text-blue-400 mr-2"></i>Waktu Mulai <span class="text-red-500">*</span>
+                </label>
+                <input
+                  type="time"
+                  name="start_time_only"
+                  class="w-full rounded-lg border-2 border-gray-200 focus:border-blue-400 focus:outline-none p-3 transition bg-gray-50"
+                  required
+                />
+              </div>
+
+              <!-- Waktu Selesai (Kolom 1) -->
+              <div>
+                <label class="block text-sm font-bold text-gray-700 mb-2">
+                  <i class="fas fa-stop-circle text-blue-400 mr-2"></i>Waktu Selesai <span class="text-red-500">*</span>
+                </label>
+                <input
+                  type="time"
+                  name="end_time_only"
+                  class="w-full rounded-lg border-2 border-gray-200 focus:border-blue-400 focus:outline-none p-3 transition bg-gray-50"
+                  required
+                />
+              </div>
+
+              <!-- Penyelenggara (Kolom 2) -->
+              <div>
+                <label class="block text-sm font-bold text-gray-700 mb-2">
+                  <i class="fas fa-user-tie text-blue-400 mr-2"></i>Penyelenggara
+                </label>
+                <input
+                  type="text"
+                  name="organizer_name"
+                  class="w-full rounded-lg border-2 border-gray-200 focus:border-blue-400 focus:outline-none p-3 transition bg-gray-50"
+                  placeholder="Nama penyelenggara"
+                />
+              </div>
+
+              <!-- Kontak (Kolom 1) -->
+              <div>
+                <label class="block text-sm font-bold text-gray-700 mb-2">
+                  <i class="fas fa-phone text-blue-400 mr-2"></i>Kontak
+                </label>
+                <input
+                  type="text"
+                  name="organizer_phone"
+                  class="w-full rounded-lg border-2 border-gray-200 focus:border-blue-400 focus:outline-none p-3 transition bg-gray-50"
+                  placeholder="Nomor telepon"
+                />
+              </div>
+
+              <!-- PIC (Kolom 2) -->
+              <div>
+                <label class="block text-sm font-bold text-gray-700 mb-2">
+                  <i class="fas fa-badge-check text-blue-400 mr-2"></i>PIC
+                </label>
+                <input
+                  type="text"
+                  name="pic_name"
+                  class="w-full rounded-lg border-2 border-gray-200 focus:border-blue-400 focus:outline-none p-3 transition bg-gray-50"
+                  placeholder="Person In Charge"
+                />
+              </div>
+
+              <!-- Peserta (Kolom 1) -->
+              <div>
+                <label class="block text-sm font-bold text-gray-700 mb-2">
+                  <i class="fas fa-users text-blue-400 mr-2"></i>Jumlah Peserta
+                </label>
+                <input
+                  type="number"
+                  name="participants_count"
+                  class="w-full rounded-lg border-2 border-gray-200 focus:border-blue-400 focus:outline-none p-3 transition bg-gray-50"
+                  placeholder="Jumlah orang"
+                />
+              </div>
+
+              <!-- Meeting Link (Full Width) -->
+              <div class="md:col-span-2">
+                <label class="block text-sm font-bold text-gray-700 mb-2">
+                  <i class="fas fa-video text-blue-400 mr-2"></i>Link Meeting
+                  <span class="text-xs text-gray-500">(Zoom/Google Meet)</span>
+                </label>
+                <input
+                  type="url"
+                  name="meeting_link"
+                  class="w-full rounded-lg border-2 border-gray-200 focus:border-blue-400 focus:outline-none p-3 transition bg-gray-50"
+                  placeholder="https://zoom.us/j/... atau https://meet.google.com/..."
+                />
+              </div>
+
+              <!-- Catatan (Full Width) -->
+              <div class="md:col-span-2">
+                <label class="block text-sm font-bold text-gray-700 mb-2">
+                  <i class="fas fa-sticky-note text-blue-400 mr-2"></i>Catatan
+                </label>
+                <textarea
+                  name="notes"
+                  class="w-full rounded-lg border-2 border-gray-200 focus:border-blue-400 focus:outline-none p-3 transition bg-gray-50"
+                  placeholder="Catatan tambahan"
+                  rows="3"
+                ></textarea>
+              </div>
+
+              <!-- Poster (Full Width) -->
+              <div class="md:col-span-2">
+                <label class="block text-sm font-bold text-gray-700 mb-2">
+                  <i class="fas fa-image text-blue-400 mr-2"></i>Poster Event
+                </label>
+                <input
+                  type="file"
+                  name="poster"
+                  accept="image/*"
+                  class="w-full rounded-lg border-2 border-gray-200 focus:border-blue-400 focus:outline-none p-3 transition bg-gray-50"
+                />
+                <p class="text-xs text-gray-500 mt-1">Format: JPG, PNG (Maks 5MB)</p>
+              </div>
+            </div>
+          </form>
+        </div>
+
+        <!-- TAB 2: ADD REMINDER -->
+        <div id="tab-content-reminder" class="tab-content hidden px-6 py-8">
+          <form id="addReminderFormTabs" class="space-y-5">
+            <!-- Judul Pengingat (Full Width) -->
+            <div>
+              <label class="block text-sm font-bold text-gray-700 mb-2">
+                <i class="fas fa-bell text-blue-400 mr-2"></i>Judul Pengingat
+                <span class="text-red-500">*</span>
+              </label>
+              <input
+                type="text"
+                name="title"
+                class="w-full rounded-lg border-2 border-gray-200 focus:border-blue-400 focus:outline-none p-3 transition bg-gray-50"
+                placeholder="Cth: Rapat Tim Proyek"
+                required
+              />
+            </div>
+
+            <!-- Tanggal (Full Width) -->
+            <div>
+              <label class="block text-sm font-bold text-gray-700 mb-2">
+                <i class="fas fa-calendar text-blue-400 mr-2"></i>Tanggal
+                <span class="text-red-500">*</span>
+              </label>
+              <input
+                type="date"
+                name="reminder_date"
+                class="w-full rounded-lg border-2 border-gray-200 focus:border-blue-400 focus:outline-none p-3 transition bg-gray-50"
+                required
+              />
+            </div>
+
+            <!-- Catatan (Full Width) -->
+            <div>
+              <label class="block text-sm font-bold text-gray-700 mb-2">
+                <i class="fas fa-sticky-note text-blue-400 mr-2"></i>Catatan
+              </label>
+              <textarea
+                name="notes"
+                class="w-full rounded-lg border-2 border-gray-200 focus:border-blue-400 focus:outline-none p-3 transition bg-gray-50"
+                placeholder="Catatan tambahan"
+                rows="4"
+              ></textarea>
+            </div>
+
+            <!-- Info -->
+            <div class="bg-blue-50 p-4 rounded-lg border-l-4 border-blue-400">
+              <p class="text-sm text-gray-700">
+                <i class="fas fa-info-circle text-blue-400 mr-2"></i>
+                Pengingat akan ditampilkan di kalender tanpa memerlukan ruangan.
+              </p>
+            </div>
+          </form>
+        </div>
+
+        <!-- TAB 3: ADD ROOM -->
+        <div id="tab-content-room" class="tab-content hidden px-6 py-8">
+          <form id="addRoomFormTabs" class="space-y-5">
+            <!-- Nama Ruangan -->
+            <div>
+              <label class="block text-sm font-bold text-gray-700 mb-2">
+                <i class="fas fa-door-open text-blue-400 mr-2"></i>Nama Ruangan
+                <span class="text-red-500">*</span>
+              </label>
+              <input
+                type="text"
+                name="name"
+                class="w-full rounded-lg border-2 border-gray-200 focus:border-blue-400 focus:outline-none p-3 transition bg-gray-50"
+                placeholder="Cth: Aula Utama"
+                required
+              />
+            </div>
+
+            <!-- Kapasitas -->
+            <div>
+              <label class="block text-sm font-bold text-gray-700 mb-2">
+                <i class="fas fa-users text-blue-400 mr-2"></i>Kapasitas
+                <span class="text-red-500">*</span>
+              </label>
+              <input
+                type="number"
+                name="capacity"
+                class="w-full rounded-lg border-2 border-gray-200 focus:border-blue-400 focus:outline-none p-3 transition bg-gray-50"
+                placeholder="Jumlah orang"
+                required
+              />
+            </div>
+
+            <!-- Warna -->
+            <div>
+              <label class="block text-sm font-bold text-gray-700 mb-2">
+                <i class="fas fa-palette text-blue-400 mr-2"></i>Warna Label
+                <span class="text-red-500">*</span>
+              </label>
+              <div class="flex gap-3">
+                <input
+                  type="color"
+                  name="color"
+                  class="w-16 h-12 rounded-lg cursor-pointer border-2 border-gray-200"
+                  value="#60a5fa"
+                />
+                <div
+                  class="flex-1 bg-gray-50 rounded-lg p-3 border-2 border-gray-200 flex items-center"
+                >
+                  <p class="text-sm text-gray-600">Pilih warna ruangan</p>
+                </div>
+              </div>
+            </div>
+          </form>
+        </div>
+          <div id="tab-content-holiday" class="tab-content hidden px-6 py-8">
+            <form id="addHolidayFormTabs" class="space-y-5">
+              <!-- Judul Hari Libur (Full Width) -->
+              <div>
+                <label class="block text-sm font-bold text-gray-700 mb-2">
+                  <i class="fas fa-heading text-blue-400 mr-2"></i>Nama Hari Libur
+                  <span class="text-red-500">*</span>
+                </label>
+                <input
+                  type="text"
+                  name="title"
+                  class="w-full rounded-lg border-2 border-gray-200 focus:border-blue-400 focus:outline-none p-3 transition bg-gray-50"
+                  placeholder="Cth: Hari Raya Idul Fitri"
+                  required
+                />
+              </div>
+          
+              <!-- Tanggal (Full Width) -->
+              <div>
+                <label class="block text-sm font-bold text-gray-700 mb-2">
+                  <i class="fas fa-calendar text-blue-400 mr-2"></i>Tanggal
+                  <span class="text-red-500">*</span>
+                </label>
+                <input
+                  type="date"
+                  name="holiday_date"
+                  class="w-full rounded-lg border-2 border-gray-200 focus:border-blue-400 focus:outline-none p-3 transition bg-gray-50"
+                  required
+                />
+              </div>
+          
+              <!-- Info -->
+              <div class="bg-red-50 p-4 rounded-lg border-l-4 border-red-400">
+                <p class="text-sm text-gray-700">
+                  <i class="fas fa-info-circle text-red-400 mr-2"></i>
+                  Hari libur akan ditampilkan di kalender dengan warna merah.
+                </p>
+              </div>
+            </form>
+          </div>
+      </div>
+
+      <!-- Buttons (Sticky) -->
+      <div class="flex gap-3 p-6 border-t border-gray-100 bg-white flex-shrink-0">
+        <button
+          type="button"
+          onclick="closeAddModalTabs()"
+          class="flex-1 bg-gray-100 hover:bg-gray-200 text-gray-700 py-3 px-4 rounded-xl font-bold transition btn-smooth"
+        >
+          <i class="fas fa-times mr-2"></i> Batal
+        </button>
+        <button
+          type="submit"
+          id="submitAddBtn"
+          class="flex-1 bg-blue-400 hover:bg-blue-500 text-white py-3 px-4 rounded-xl font-bold shadow-lg transition btn-smooth flex items-center justify-center gap-2"
+        >
+          <i class="fas fa-check-circle"></i> Buat
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+        <!-- ========== EVENT DRAWER (REDESIGNED) ========== -->
+        <div
+  id="eventDrawerOverlay"
+  class="fixed inset-0 bg-gray-900 bg-opacity-40 z-[70] hidden transition-opacity"
+  onclick="closeDrawer()"
+></div>
+
+        
+        <div
+          id="eventDrawer"
+          class="fixed inset-y-0 right-0 z-[80] w-full sm:w-[450px] bg-white shadow-2xl transform translate-x-full transition-transform duration-300 ease-in-out overflow-y-auto">
+          <!-- Header dengan Close Button -->
+          <div class="sticky top-0 z-10 bg-white border-b border-gray-200 px-6 py-4 flex items-center justify-between">
+  <div class="flex items-center gap-3">
+    <div id="eventTypeIndicator" class="px-3 py-1 rounded-full text-xs font-bold bg-purple-100 text-purple-600">
+      Meeting
+    </div>
+  </div>
+  
+  <!-- ✅ TAMBAH: Tombol Ganti Poster -->
+  <div class="flex items-center gap-2">
+    <button
+      id="btnChangePoster"
+      class="text-blue-500 hover:text-blue-700 p-2 rounded-lg hover:bg-blue-50 transition"
+      title="Ganti Poster"
+      onclick="document.getElementById('editPosterInput').click();"
+    >
+      <i class="fas fa-upload text-lg"></i>
+    </button>
+    
+    <button
+      onclick="closeDrawer()"
+      class="text-gray-400 hover:text-gray-600 transition text-2xl"
+    >
+      <i class="fas fa-times"></i>
+    </button>
+  </div>
+</div>
+        
+          <!-- Content -->
+          <div class="p-6 space-y-6">
+
+                        <!-- Poster (Event Only) -->
+                        <div id="detailPosterContainer" class="hidden">
+  <div class="relative group">
+    <div 
+      class="w-full bg-gray-100 rounded-lg overflow-hidden flex items-center justify-center cursor-pointer hover:opacity-80 transition"
+      style="aspect-ratio: 16/9;"
+      onclick="openPosterModal()"
+    >
+      <img
+        id="detailPoster"
+        src=""
+        alt="Event Poster"
+        class="w-full h-full object-contain"
+      />
+    </div>
+                          </div>
+                        </div>
+                        
+                        <!-- Upload input (hidden) -->
+                        <input type="file" id="editPosterInput" accept="image/*" class="hidden" />
+                        
+                        <!-- Jika belum ada poster, tampilkan tombol tambah -->
+                        <div id="detailPosterEmpty" class="hidden">
+                          <button
+                            type="button"
+                            onclick="document.getElementById('editPosterInput').click()"
+                            class="w-full bg-gray-100 hover:bg-gray-200 border-2 border-dashed border-gray-300 rounded-lg p-8 text-center transition cursor-pointer group"
+                          >
+                            <i class="fas fa-image text-gray-400 text-4xl mb-3 block group-hover:text-blue-400"></i>
+                            <p class="text-sm font-bold text-gray-700 group-hover:text-blue-600">
+                              <i class="fas fa-plus mr-1"></i>Tambah Poster Event
+                            </p>
+                            <p class="text-xs text-gray-500 mt-1">JPG, PNG (Maks 5MB)</p>
+                          </button>
+                        </div>
+    
+            <!-- Title -->
+            <div class="group">
+              <div class="flex items-center justify-between">
+                <h2 id="detailTitle" class="text-2xl font-bold text-gray-900 mb-2"></h2>
+                <button
+                  onclick="toggleEditMode('eventTitle')"
+                  class="text-gray-400 hover:text-blue-500 opacity-0 group-hover:opacity-100 transition duration-200"
+                  title="Edit Judul"
+                  id="editTitleBtn"
+                >
+                  <i class="fas fa-edit text-base"></i>
+                </button>
+              </div>
+              <input
+                type="text"
+                id="editEventTitle"
+                class="w-full rounded-lg border-2 border-blue-300 p-2 text-lg font-bold hidden"
+                placeholder="Judul Event"
+              />
+            </div>
+
+                        <!-- ✅ TAMBAH: REMINDER DATE SECTION (SEBELUM TIME SECTION) -->
+            <div id="reminderDateSection" class="hidden bg-gray-50 rounded-xl p-4 border border-gray-200 group">
+              <div class="flex items-center justify-between mb-3">
+                <p class="text-xs text-gray-500 font-semibold uppercase tracking-wide">
+                  <i class="fas fa-calendar text-purple-400 mr-2"></i>Tanggal Pengingat
+                </p>
+                <button
+                  onclick="toggleEditMode('reminderDate')"
+                  class="text-gray-400 hover:text-blue-500 opacity-0 group-hover:opacity-100 transition"
+                  title="Edit Tanggal"
+                >
+                  <i class="fas fa-edit text-xs"></i>
+                </button>
+              </div>
+              <div>
+                <p id="reminderDateDisplay" class="text-sm font-bold text-gray-900 mb-2">-</p>
+                <input
+                  type="date"
+                  id="detailReminderDate"
+                  class="w-full rounded-lg border-2 border-purple-300 p-2 text-sm hidden"
+                />
+              </div>
+            </div>
+        
+            <!-- Time Section (Styled seperti gambar) -->
+            <div id="timeSection" class="bg-gray-50 rounded-xl p-4 border border-gray-200 group">
+              <div class="flex items-center justify-between mb-3">
+                <p class="text-xs text-gray-500 font-semibold uppercase tracking-wide">
+                  <i class="fas fa-clock text-blue-400 mr-2"></i>Duration
+                </p>
+                <button
+                  onclick="toggleEditMode('startTime')"
+                  class="text-gray-400 hover:text-blue-500 opacity-0 group-hover:opacity-100 transition"
+                  title="Edit Waktu"
+                >
+                  <i class="fas fa-edit text-xs"></i>
+                </button>
+              </div>
+              <div class="flex items-center gap-4">
+                <!-- Start Time -->
+                <div>
+                  <p class="text-xs text-gray-500 mb-1 font-semibold">Start</p>
+                  <p id="detailStartTime" class="text-sm font-bold text-gray-900 mb-1">06:00 AM</p>
+                  <p id="detailStartDate" class="text-xs text-gray-500">Aug 16, 2023</p>
+                </div>
+                <!-- Arrow -->
+                <div class="text-gray-300 mt-6">
+                  <i class="fas fa-arrow-right"></i>
+                </div>
+                <!-- End Time -->
+                <div>
+                  <p class="text-xs text-gray-500 mb-1 font-semibold">End</p>
+                  <p id="detailEndTime" class="text-sm font-bold text-gray-900 mb-1">07:00 AM</p>
+                  <p id="detailEndDate" class="text-xs text-gray-500">Aug 16, 2023</p>
+                </div>
+              </div>
+              <!-- Duration Display -->
+              <div class="mt-3 pt-3 border-t border-gray-300 flex items-center gap-2">
+                <i class="fas fa-hourglass-end text-orange-400 text-sm"></i>
+                <p id="detailDuration" class="text-sm font-semibold text-gray-700">1 hour</p>
+              </div>
+            </div>
+        
+            <!-- Edit Time Button (Event Only) -->
+            <div id="editTimeButtons" class="hidden space-y-3">
+              <div>
+                <label class="block text-xs font-bold text-gray-700 mb-2">
+                  <i class="fas fa-play-circle text-blue-400 mr-2"></i>Start Time
+                </label>
+                <input
+                  type="datetime-local"
+                  id="editStartTime"
+                  class="w-full rounded-lg border-2 border-blue-300 p-2 text-sm"
+                />
+              </div>
+              <div>
+                <label class="block text-xs font-bold text-gray-700 mb-2">
+                  <i class="fas fa-stop-circle text-blue-400 mr-2"></i>End Time
+                </label>
+                <input
+                  type="datetime-local"
+                  id="editEndTime"
+                  class="w-full rounded-lg border-2 border-blue-300 p-2 text-sm"
+                />
+              </div>
+            </div>
+        
+            <!-- Event Details Grid (Event Only) -->
+            <div id="eventDetailsGrid" class="hidden space-y-3">
+              <h4 class="text-sm font-bold text-gray-700 mb-3">
+                <i class="fas fa-list-check text-blue-400 mr-2"></i>Event Details
+              </h4>
+              
+              <!-- Ruangan -->
+              <div class="bg-gray-50 rounded-lg p-3 border border-gray-200 group hover:border-blue-300 transition">
+                <p class="text-xs text-gray-500 font-semibold mb-1">Location</p>
+                <div class="flex items-center justify-between">
+                  <p id="detailRoom" class="text-sm font-semibold text-gray-900">-</p>
+                  <button
+                    onclick="toggleEditMode('room')"
+                    class="text-gray-400 hover:text-blue-500 opacity-0 group-hover:opacity-100 transition"
+                  >
+                    <i class="fas fa-edit text-xs"></i>
+                  </button>
+                </div>
+                <select
+                  id="editRoomSelect"
+                  class="w-full rounded-lg border-2 border-blue-300 p-2 text-sm hidden mt-2"
+                >
+                  <option value="">-- Pilih Ruangan --</option>
+                </select>
+
+                <div id="bookingFormConflictWarning" class="hidden mt-3 bg-red-50 border-l-4 border-red-500 p-3 rounded">
+  <div class="flex items-start gap-2">
+    <i class="fas fa-exclamation-circle text-red-600 text-lg mt-0.5 flex-shrink-0"></i>
+    <div>
+      <p class="text-sm font-bold text-red-700">Jadwal Bentrok!</p>
+      <p class="text-xs text-red-600 mt-1">Ruangan ini sudah dipesan pada waktu tersebut.</p>
+      <p class="text-xs text-red-500 mt-1 font-semibold">Jadwal bentrok TIDAK diizinkan di kalender ini.</p>
+    </div>
+  </div>
+</div>
+              </div>
+        
+              <!-- Organizer -->
+              <div class="bg-gray-50 rounded-lg p-3 border border-gray-200 group hover:border-blue-300 transition">
+                <p class="text-xs text-gray-500 font-semibold mb-1">Organizer</p>
+                <div class="flex items-center justify-between">
+                  <p id="detailOrganizer" class="text-sm font-semibold text-gray-900">-</p>
+                  <button
+                    onclick="toggleEditMode('organizer')"
+                    class="text-gray-400 hover:text-blue-500 opacity-0 group-hover:opacity-100 transition"
+                  >
+                    <i class="fas fa-edit text-xs"></i>
+                  </button>
+                </div>
+                <input
+                  type="text"
+                  id="editOrganizer"
+                  class="w-full rounded-lg border-2 border-blue-300 p-2 text-sm hidden mt-2"
+                  placeholder="Organizer"
+                />
+              </div>
+        
+              <!-- Phone -->
+              <div class="bg-gray-50 rounded-lg p-3 border border-gray-200 group hover:border-blue-300 transition">
+                <p class="text-xs text-gray-500 font-semibold mb-1">Contact</p>
+                <div class="flex items-center justify-between">
+                  <p id="detailOrganizerPhone" class="text-sm font-semibold text-gray-900">-</p>
+                  <button
+                    onclick="toggleEditMode('phone')"
+                    class="text-gray-400 hover:text-blue-500 opacity-0 group-hover:opacity-100 transition"
+                  >
+                    <i class="fas fa-edit text-xs"></i>
+                  </button>
+                </div>
+                <input
+                  type="text"
+                  id="editPhone"
+                  class="w-full rounded-lg border-2 border-blue-300 p-2 text-sm hidden mt-2"
+                  placeholder="Phone"
+                />
+              </div>
+        
+              <!-- PIC -->
+              <div class="bg-gray-50 rounded-lg p-3 border border-gray-200 group hover:border-blue-300 transition">
+                <p class="text-xs text-gray-500 font-semibold mb-1">PIC</p>
+                <div class="flex items-center justify-between">
+                  <p id="detailPic" class="text-sm font-semibold text-gray-900">-</p>
+                  <button
+                    onclick="toggleEditMode('pic')"
+                    class="text-gray-400 hover:text-blue-500 opacity-0 group-hover:opacity-100 transition"
+                  >
+                    <i class="fas fa-edit text-xs"></i>
+                  </button>
+                </div>
+                <input
+                  type="text"
+                  id="editPic"
+                  class="w-full rounded-lg border-2 border-blue-300 p-2 text-sm hidden mt-2"
+                  placeholder="PIC"
+                />
+              </div>
+        
+              <!-- Participants Count -->
+              <div class="bg-gray-50 rounded-lg p-3 border border-gray-200 group hover:border-blue-300 transition">
+                <p class="text-xs text-gray-500 font-semibold mb-1">Participants</p>
+                <div class="flex items-center justify-between">
+                  <p id="detailParticipants" class="text-sm font-semibold text-gray-900">-</p>
+                  <button
+                    onclick="toggleEditMode('participants')"
+                    class="text-gray-400 hover:text-blue-500 opacity-0 group-hover:opacity-100 transition"
+                  >
+                    <i class="fas fa-edit text-xs"></i>
+                  </button>
+                </div>
+                <input
+                  type="number"
+                  id="editParticipants"
+                  class="w-full rounded-lg border-2 border-blue-300 p-2 text-sm hidden mt-2"
+                  placeholder="Participants"
+                />
+              </div>
+            </div>
+        
+            <!-- ===== MEETING LINK (Event Only) ===== -->
+            <div id="detailMeetingLinkContainer" class="hidden group">
+              <div class="flex items-center justify-between mb-2">
+                <p class="text-xs text-gray-500 font-semibold uppercase tracking-wide">
+                  <i class="fas fa-link text-green-400 mr-2"></i>Meeting Link
+                </p>
+                <button
+                  id="editMeetingLinkBtn"
+                  onclick="toggleEditMeetingLink()"
+                  class="text-gray-400 hover:text-blue-500 opacity-0 group-hover:opacity-100 transition"
+                  title="Edit Meeting Link"
+                >
+                  <i class="fas fa-edit text-xs"></i>
+                </button>
+              </div>
+              <a
+                id="detailMeetingLink"
+                href="#"
+                target="_blank"
+                class="flex items-center gap-2 bg-green-50 border border-green-300 px-4 py-3 rounded-lg text-green-600 font-semibold hover:bg-green-100 transition truncate"
+              >
+                <!-- ✅ ICON DARI GAMBAR -->
+                <span id="meetingLinkText" class="truncate">Go to Link</span>
+                <i class="fas fa-external-link-alt ml-auto text-xs flex-shrink-0"></i>
+              </a>
+            </div>
+            
+            <!-- ✅ TAMBAH: Input untuk edit meeting link -->
+            <div id="editMeetingLinkInputContainer" class="hidden">
+              <label class="block text-xs font-bold text-gray-700 mb-2">
+                <i class="fas fa-link text-blue-400 mr-2"></i>Meeting Link
+              </label>
+              <input
+                type="url"
+                id="editMeetingLinkInput"
+                class="w-full rounded-lg border-2 border-blue-300 p-3 text-sm hidden"
+                placeholder="https://zoom.us/j/... atau https://meet.google.com/..."
+              />
+            </div>
+
+<!-- ✅ TAMBAH: Input untuk edit meeting link -->
+<div id="editMeetingLinkInputContainer" class="hidden">
+  <label class="block text-xs font-bold text-gray-700 mb-2">
+    <i class="fas fa-link text-blue-400 mr-2"></i>Meeting Link
+  </label>
+  <input
+    type="url"
+    id="editMeetingLinkInput"
+    class="w-full rounded-lg border-2 border-blue-300 p-3 text-sm hidden"
+    placeholder="https://zoom.us/j/... atau https://meet.google.com/..."
+  />
+</div>
+
+<!-- ===== DOKUMENTASI SECTION (Event Only) ===== -->
+<div id="documentationSection" class="hidden">
+  <!-- JIKA SUDAH ADA DOKUMENTASI -->
+  <div id="documentationWithContent" class="hidden">
+    <div class="flex items-center justify-between mb-3">
+      <h4 class="text-sm font-bold text-gray-700 flex items-center gap-2">
+        <i class="fas fa-images text-blue-400"></i> 
+        Dokumentasi 
+        <span id="docCountBadge" class="bg-blue-100 text-blue-700 text-xs font-bold px-2 py-1 rounded-full">0</span>
+      </h4>
+      <button
+        onclick="openDocumentationUpload()"
+        class="text-blue-500 hover:text-blue-700 text-xs font-bold px-2 py-1 bg-blue-50 rounded-lg transition border border-blue-200"
+        title="Tambah Dokumentasi (Bisa Multiple)"
+      >
+        <i class="fas fa-plus mr-1"></i> Tambah File
+      </button>
+    </div>
+
+    <!-- ✅ TAMBAH: Dokumentasi Slider Container -->
+    <div id="documentationSlider" class="relative group mb-4">
+      <!-- Gambar/Video Container -->
+      <div class="w-full bg-gray-100 rounded-lg overflow-hidden flex items-center justify-center relative" style="aspect-ratio: 16/9;">
+        <!-- Gambar -->
+        <img
+          id="documentationImg"
+          src=""
+          alt="Documentation"
+          class="w-full h-full object-contain hidden"
+        />
+        
+        <!-- Video -->
+        <video
+          id="documentationVideo"
+          class="w-full h-full object-contain hidden"
+          controls
+        ></video>
+      </div>
+
+      <!-- Counter -->
+      <div class="absolute top-3 right-3 bg-black/60 text-white px-2 py-1 rounded text-xs font-bold">
+        <span id="docCounter">1</span>/<span id="docTotal">1</span>
+      </div>
+
+      <!-- Navigation Arrows -->
+      <button
+        onclick="prevDocumentation()"
+        class="absolute left-3 top-1/2 -translate-y-1/2 bg-white/80 hover:bg-white text-gray-900 p-2 rounded-full shadow-lg transition hidden"
+        id="prevDocBtn"
+      >
+        <i class="fas fa-chevron-left"></i>
+      </button>
+      <button
+        onclick="nextDocumentation()"
+        class="absolute right-3 top-1/2 -translate-y-1/2 bg-white/80 hover:bg-white text-gray-900 p-2 rounded-full shadow-lg transition hidden"
+        id="nextDocBtn"
+      >
+        <i class="fas fa-chevron-right"></i>
+      </button>
+    </div>
+
+    <!-- ✅ TAMBAH: Indicators (Dots) -->
+    <div id="documentationIndicators" class="flex justify-center gap-2 mb-3"></div>
+
+    <!-- Info & Edit/Delete -->
+    <div id="documentationInfo" class="space-y-2">
+      <div class="flex items-center justify-between bg-gray-50 p-3 rounded-lg">
+        <div>
+          <p class="text-xs text-gray-500 font-semibold mb-1">File</p>
+          <p id="documentationFileNameDisplay" class="text-sm font-bold text-gray-700 truncate"></p>
+        </div>
+        <div class="flex gap-2">
+          <button
+            onclick="deleteCurrentDocumentation()"
+            class="text-red-500 hover:text-red-700 text-xs p-2 bg-red-50 rounded-lg transition border border-red-200"
+            title="Hapus file ini"
+          >
+            <i class="fas fa-trash-alt"></i>
+          </button>
+        </div>
+      </div>
+      
+      <!-- Info upload multiple -->
+      <div class="bg-blue-50 border border-blue-200 rounded-lg p-3">
+        <p class="text-xs text-blue-700 font-semibold mb-2">
+          <i class="fas fa-info-circle mr-1"></i>Info Dokumentasi
+        </p>
+        <ul class="text-xs text-blue-600 space-y-1">
+          <li>Bisa upload <strong>multiple file</strong></li>
+          <li>Format: JPG, PNG, GIF, MP4, WebM</li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- Upload Form (Hidden) -->
+    <div id="documentationUploadForm" class="hidden mt-3 p-4 bg-blue-50 border-2 border-blue-200 rounded-lg">
+      <div class="mb-3">
+        <label class="block text-xs font-bold text-gray-700 mb-2">
+          <i class="fas fa-upload text-blue-400 mr-2"></i>Pilih File untuk Diupload
+        </label>
+        <input
+          type="file"
+          id="documentationFileInput"
+          accept="image/*,video/*"
+          class="w-full rounded-lg border-2 border-gray-200 focus:border-blue-400 focus:outline-none p-3 transition bg-white"
+        />
+        <p class="text-xs text-gray-500 mt-1">
+          <i class="fas fa-lightbulb mr-1"></i>Pilih file gambar atau video, akan langsung terupload
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <!-- JIKA BELUM ADA DOKUMENTASI (EMPTY STATE) -->
+  <div id="documentationEmpty" class="hidden">
+    <button
+      type="button"
+      onclick="openDocumentationUpload()"
+      class="w-full bg-gradient-to-r from-blue-50 to-blue-100 hover:from-blue-100 hover:to-blue-200 border-2 border-dashed border-blue-300 rounded-lg p-8 text-center transition cursor-pointer group"
+    >
+      <i class="fas fa-images text-blue-400 text-4xl mb-3 block group-hover:text-blue-600"></i>
+      <p class="text-sm font-bold text-blue-700 group-hover:text-blue-800">
+        <i class="fas fa-plus mr-1"></i>Tambah Dokumentasi Event
+      </p>
+      <p class="text-xs text-blue-600 mt-2">Foto atau Video (Maks 50MB per file)</p>
+      <p class="text-xs text-blue-500 mt-1 font-semibold">💡 Bisa upload berkali-kali</p>
+    </button>
+  </div>
+</div>
+            <!-- Notes Section (Editable) -->
+            <div id="notesSection" class="hidden">
+              <div class="flex items-center justify-between mb-3">
+                <h4 class="text-sm font-bold text-gray-700 flex items-center gap-2">
+                  <i class="fas fa-sticky-note text-yellow-400"></i> Notes
+                </h4>
+                <button
+                  onclick="toggleEditMode('notes')"
+                  class="text-gray-400 hover:text-blue-500 transition text-sm"
+                >
+                  <i class="fas fa-edit"></i>
+                </button>
+              </div>
+              <p
+                id="detailNotes"
+                class="text-sm text-gray-700 leading-relaxed bg-yellow-50 p-4 rounded-lg border-l-4 border-yellow-400"
+              >
+                -
+              </p>
+              <textarea
+                id="editNotes"
+                class="w-full rounded-lg border-2 border-yellow-400 p-3 text-sm hidden mt-2"
+                placeholder="Catatan"
+                rows="3"
+              ></textarea>
+            </div>
+        
+            <!-- Edit Actions (Hidden) -->
+            <div
+              id="editActions"
+              class="flex gap-2 pt-4 border-t border-gray-200 hidden"
+            >
+              <button
+                id="btnSaveEdit"
+                onclick="saveEdit()"
+                class="flex-1 bg-green-50 text-green-600 hover:bg-green-100 px-4 py-3 rounded-lg text-sm font-bold transition border-2 border-green-200 flex items-center justify-center gap-2"
+              >
+                <i class="fas fa-check-circle"></i> Save
+              </button>
+              <button
+                onclick="cancelEdit()"
+                class="flex-1 bg-gray-100 hover:bg-gray-200 text-gray-700 px-4 py-3 rounded-lg text-sm font-bold transition flex items-center justify-center gap-2"
+              >
+                <i class="fas fa-times-circle"></i> Cancel
+              </button>
+            </div>
+        
+            <!-- Delete Button -->
+            <div
+              id="normalActions"
+              class="flex gap-3 pt-4 border-t border-gray-200"
+            >
+              <button
+                id="btnDeleteEvent"
+                class="flex-1 bg-red-50 text-red-600 hover:bg-red-100 px-4 py-3 rounded-lg text-sm font-bold transition border-2 border-red-200 flex items-center justify-center gap-2"
+              >
+                <i class="fas fa-trash-alt"></i> Delete
+              </button>
+            </div>
+          </div>
+        
+          <!-- Hidden Inputs -->
+          <input type="hidden" id="editEventTitle" />
+          <input type="file" id="editPosterInput" accept="image/*" class="hidden" />
+          <input type="hidden" id="editMeetingLink" />
+        </div>
+
+                <!-- ========== MODAL: GENERATE HOLIDAYS ========== -->
+        <div
+          id="generateHolidaysModal"
+          class="fixed inset-0 z-50 hidden backdrop-blur-sm"
+          role="dialog"
+          aria-modal="true"
+        >
+          <div
+            class="fixed inset-0 bg-gray-900 bg-opacity-40 transition-opacity"
+          ></div>
+          <div class="fixed inset-0 z-10 flex items-center justify-center p-4">
+            <div
+              class="modal-content bg-white rounded-2xl shadow-2xl max-w-md w-full flex flex-col max-h-[90vh] border border-gray-100"
+            >
+              <!-- Header -->
+              <div
+                class="px-6 py-5 border-b border-gray-100 flex justify-between items-center bg-gray-50"
+              >
+                <h3
+                  class="text-2xl font-bold text-gray-900 flex items-center gap-2"
+                >
+                  <i class="fas fa-calendar-check text-green-400"></i> Generate Hari Libur
+                </h3>
+                <button
+                  onclick="closeGenerateHolidaysModal()"
+                  class="text-gray-400 hover:text-gray-600 transition text-2xl"
+                >
+                  <i class="fas fa-times"></i>
+                </button>
+              </div>
+    
+              <!-- Content -->
+              <div class="p-6 space-y-5">
+                <p class="text-sm text-gray-600">
+                  Tambahkan hari libur nasional ke kalender. Pilih tahun yang diinginkan.
+                </p>
+    
+                <!-- Year Input -->
+                <div>
+                  <label class="block text-sm font-bold text-gray-700 mb-2">
+                    <i class="fas fa-calendar text-green-400 mr-2"></i>Tahun
+                    <span class="text-red-500">*</span>
+                  </label>
+                  <input
+                    type="number"
+                    id="holidaysYearInput"
+                    class="w-full rounded-lg border-2 border-gray-200 focus:border-green-400 focus:outline-none p-3 transition bg-gray-50"
+                    placeholder="2025"
+                    min="2025"  
+                    max="2027"  
+                    value="2025"
+                  />
+                </div>
+    
+                <!-- Info -->
+                <div class="bg-green-50 p-4 rounded-lg border-l-4 border-green-400">
+                  <p class="text-sm text-gray-700">
+                    <i class="fas fa-info-circle text-green-400 mr-2"></i>
+                    Hari libur akan ditambahkan ke kalender dan dapat dihapus manual jika diperlukan.
+                  </p>
+                </div>
+              </div>
+    
+              <!-- Buttons -->
+              <div
+                class="px-6 py-4 border-t border-gray-100 bg-gray-50 flex justify-end gap-3"
+              >
+                <button
+                  onclick="closeGenerateHolidaysModal()"
+                  class="bg-gray-100 hover:bg-gray-200 text-gray-700 px-4 py-2 rounded-lg font-bold transition btn-smooth"
+                >
+                  <i class="fas fa-times mr-2"></i> Batal
+                </button>
+                <button
+                  type="button"
+                  onclick="window.generateHolidays && window.generateHolidays()"
+                  class="bg-green-400 hover:bg-green-500 text-white px-4 py-2 rounded-lg font-bold shadow-lg transition btn-smooth flex items-center gap-2"
+                >
+                  <i class="fas fa-check-circle"></i> Generate
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+    <!-- ========== MODAL: SETTINGS ========== -->
+    <div
+      id="settingsModal"
+      class="fixed inset-0 z-50 hidden backdrop-blur-sm"
+      role="dialog"
+      aria-modal="true"
+    >
+      <div
+        class="fixed inset-0 bg-gray-900 bg-opacity-40 transition-opacity"
+        onclick="closeSettingsModal()"
+      ></div>
+      <div class="fixed inset-0 z-10 flex items-center justify-center p-4">
+        <div
+          class="modal-content bg-white rounded-2xl shadow-2xl max-w-lg w-full flex flex-col max-h-[90vh] border border-gray-100"
+        >
+          <!-- Header -->
+          <div
+            class="px-6 py-5 border-b border-gray-100 flex justify-between items-center bg-gray-50"
+          >
+            <h3
+              class="text-2xl font-bold text-gray-900 flex items-center gap-2"
+            >
+              <i class="fas fa-sliders text-blue-400"></i> Pengaturan Sistem
+            </h3>
+            <button
+              onclick="closeSettingsModal()"
+              class="text-gray-400 hover:text-gray-600 transition text-2xl"
+            >
+              <i class="fas fa-times"></i>
+            </button>
+          </div>
+
+          <!-- Content -->
+          <div class="p-6 overflow-y-auto flex-1 space-y-6">
+
+                        <!-- PIN Input for Settings -->
+                        <div class="bg-blue-50 p-5 rounded-xl border-2 border-blue-200">
+                          <label class="block text-sm font-bold text-gray-700 mb-3">
+                            <i class="fas fa-lock text-blue-400 mr-2"></i>Manajemen PIN Kalender
+                          </label>
+            
+                          <!-- Current PIN Status -->
+                          <div id="pinStatusDisplay" class="mb-4 p-3 bg-white rounded-lg border border-gray-200">
+                            <div class="flex items-center justify-between">
+                              <div>
+                                <p class="text-xs text-gray-500 font-semibold uppercase mb-1">Status PIN</p>
+                                <p id="pinStatusText" class="text-sm font-bold text-green-600">
+                                  <i class="fas fa-check-circle mr-2"></i>PIN Aktif
+                                </p>
+                              </div>
+                              <div class="flex gap-2">
+                                <button
+                                  type="button"
+                                  id="btnChangePin"
+                                  class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg font-bold text-xs transition flex items-center gap-2"
+                                >
+                                  <i class="fas fa-key"></i> Ubah PIN
+                                </button>
+                                <button
+                                  type="button"
+                                  id="btnDisablePin"
+                                  class="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg font-bold text-xs transition flex items-center gap-2"
+                                >
+                                  <i class="fas fa-power-off"></i> Nonaktifkan
+                                </button>
+                              </div>
+                            </div>
+                          </div>
+            
+                            <!-- PIN Input Section (Hidden by default) -->
+                            <div id="pinInputSection" class="hidden space-y-4 bg-white p-4 rounded-lg border border-blue-300">
+                              <!-- Current PIN (untuk verifikasi) -->
+                              <div>
+                                <label class="block text-xs font-bold text-gray-700 mb-2">
+                                  PIN Saat Ini (untuk verifikasi)
+                                  <span class="text-red-500">*</span>
+                                </label>
+                                <input
+                                  type="password"
+                                  id="currentPinInput"
+                                  class="w-full rounded-lg border-2 border-gray-300 focus:border-blue-400 focus:outline-none p-3 transition bg-gray-50 text-lg tracking-widest"
+                                  placeholder="••••••"
+                                  maxlength="6"
+                                  inputmode="numeric"
+                                  pattern="[0-9a-zA-Z]*"
+                                />
+                                <p class="text-xs text-gray-500 mt-1">Masukkan PIN saat ini untuk verifikasi</p>
+                              </div>
+              
+                              <!-- New PIN -->
+                              <div>
+                                <label class="block text-xs font-bold text-gray-700 mb-2">
+                                  PIN Baru
+                                  <span class="text-red-500">*</span>
+                                </label>
+                                <input
+                                  type="password"
+                                  id="newPinInput"
+                                  class="w-full rounded-lg border-2 border-gray-300 focus:border-blue-400 focus:outline-none p-3 transition bg-gray-50 text-lg tracking-widest"
+                                  placeholder="••••••"
+                                  maxlength="6"
+                                  inputmode="numeric"
+                                  pattern="[0-9a-zA-Z]*"
+                                />
+                                <p class="text-xs text-gray-500 mt-1">Gunakan maksimal 6 karakter (angka atau huruf)</p>
+                              </div>
+              
+                              <!-- Confirm PIN -->
+                              <div>
+                                <label class="block text-xs font-bold text-gray-700 mb-2">
+                                  Konfirmasi PIN Baru
+                                  <span class="text-red-500">*</span>
+                                </label>
+                                <input
+                                  type="password"
+                                  id="confirmNewPinInput"
+                                  class="w-full rounded-lg border-2 border-gray-300 focus:border-blue-400 focus:outline-none p-3 transition bg-gray-50 text-lg tracking-widest"
+                                  placeholder="••••••"
+                                  maxlength="6"
+                                  inputmode="numeric"
+                                  pattern="[0-9a-zA-Z]*"
+                                />
+                                <p class="text-xs text-gray-500 mt-1">Ketik PIN baru sekali lagi untuk konfirmasi</p>
+                              </div>
+              
+                              <!-- Error Message -->
+                              <div id="pinErrorMessage" class="hidden bg-red-50 border border-red-300 rounded-lg p-3">
+                                <p id="pinErrorText" class="text-sm text-red-600 font-semibold flex items-center gap-2">
+                                  <i class="fas fa-exclamation-circle"></i>
+                                  <span></span>
+                                </p>
+                              </div>
+              
+                              <!-- Success Message -->
+                              <div id="pinSuccessMessage" class="hidden bg-green-50 border border-green-300 rounded-lg p-3">
+                                <p class="text-sm text-green-600 font-semibold flex items-center gap-2">
+                                  <i class="fas fa-check-circle"></i>
+                                  PIN berhasil diperbarui!
+                                </p>
+                              </div>
+              
+                              <!-- Buttons -->
+                              <div class="flex gap-2 pt-3 border-t border-gray-200">
+                                <button
+                                  type="button"
+                                  id="btnCancelPin"
+                                  class="flex-1 bg-gray-200 hover:bg-gray-300 text-gray-700 px-4 py-2 rounded-lg font-bold text-xs transition"
+                                >
+                                  <i class="fas fa-times mr-2"></i>Batal
+                                </button>
+                                <button
+                                  type="button"
+                                  id="btnSavePin"
+                                  class="flex-1 bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-lg font-bold text-xs transition flex items-center justify-center gap-2"
+                                >
+                                  <i class="fas fa-check-circle"></i>Simpan PIN
+                                </button>
+                              </div>
+                            </div>
+                          </div>
+          
+
+            <!-- Double Booking Toggle -->
+            <div class="bg-blue-50 p-5 rounded-xl border-2 border-blue-200">
+              <div class="flex items-center justify-between">
+                <div>
+                  <p
+                    class="font-bold text-gray-700 text-lg flex items-center gap-2"
+                  >
+                    <i class="fas fa-exclamation-triangle text-orange-400"></i>
+                    Izinkan Jadwal Bentrok?
+                  </p>
+                  <p class="text-sm text-gray-500 mt-1">
+                    User bisa booking di jam yang sama.
+                  </p>
+                </div>
+                <label class="relative inline-flex items-center cursor-pointer">
+                  <input
+                    type="checkbox"
+                    id="toggleDoubleBooking"
+                    class="sr-only peer"
+                  />
+                  <div
+                    class="w-11 h-6 bg-gray-300 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-blue-400 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-400"
+                  ></div>
+                </label>
+              </div>
+            </div>
+
+            <!-- Room List Info -->
+            <div>
+              <h4
+                class="text-lg font-bold text-gray-700 mb-3 flex items-center gap-2"
+              >
+                <i class="fas fa-list-check text-blue-400"></i> Daftar Ruangan
+                Aktif
+              </h4>
+
+              
+              <div class="border-2 border-gray-200 rounded-xl overflow-hidden">
+                <div class="bg-gray-50 px-4 py-3 border-b border-gray-200 grid grid-cols-4 gap-4 text-xs font-bold text-gray-600 uppercase tracking-wider">
+                  <span>Panah</span>
+                  <span>Warna</span>
+                  <span>Nama Ruangan</span>
+                  <span class="text-right">Aksi</span>
+                </div>
+                <div
+                  id="settingsRoomList"
+                  class="divide-y divide-gray-200 bg-white max-h-64 overflow-y-auto"
+                >
+                  <div class="col-span-4 text-center py-8 text-gray-400">
+                    <i class="fas fa-spinner fa-spin text-2xl"></i>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Footer -->
+          <div
+            class="px-6 py-4 border-t border-gray-100 bg-gray-50 flex justify-end"
+          >
+            <button
+              onclick="closeSettingsModal()"
+              class="bg-blue-400 hover:bg-blue-500 text-white px-6 py-2 rounded-lg font-bold transition btn-smooth"
+            >
+              <i class="fas fa-check mr-2"></i> Selesai
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ========== MODAL: BOOKING ========== -->
+    <div
+      id="bookingModal"
+      class="fixed inset-0 z-50 hidden backdrop-blur-sm"
+      role="dialog"
+      aria-modal="true"
+    >
+      <div
+        class="fixed inset-0 bg-gray-900 bg-opacity-40 transition-opacity"
+      ></div>
+      <div
+        class="fixed inset-0 z-10 overflow-y-auto flex items-center justify-center p-4"
+      >
+        <div
+          class="modal-content relative transform overflow-hidden rounded-2xl bg-white text-left shadow-2xl w-full max-w-2xl flex flex-col max-h-[90vh]"
+        >
+          <!-- Header -->
+          <div
+            class="bg-blue-400 px-6 py-5 flex justify-between items-center flex-shrink-0"
+          >
+            <div>
+              <h3 class="text-2xl font-bold text-white flex items-center gap-2">
+                <i class="fas fa-calendar-check"></i> Pesan Ruangan
+              </h3>
+              <p class="text-blue-100 text-sm mt-1">Isi formulir pemesanan</p>
+            </div>
+            <button
+              onclick="closeModal()"
+              class="text-blue-100 hover:text-white transition text-2xl"
+            >
+              <i class="fas fa-times"></i>
+            </button>
+          </div>
+
+          <!-- Form (Scrollable) -->
+          <form id="bookingForm" class="px-6 py-8 overflow-y-auto flex-1">
+            <!-- Grid 2 Kolom -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+              <!-- Judul Event (Full Width) -->
+              <div class="md:col-span-2">
+                <label class="block text-sm font-bold text-gray-700 mb-2">
+                  <i class="fas fa-heading text-blue-400 mr-2"></i>Judul Event
+                  <span class="text-red-500">*</span>
+                </label>
+                <input
+                  type="text"
+                  name="title"
+                  class="w-full rounded-lg border-2 border-gray-200 focus:border-blue-400 focus:outline-none p-3 transition bg-gray-50"
+                  placeholder="Cth: Rapat Rutin"
+                  required
+                />
+              </div>
+
+              <!-- Ruangan (Full Width) -->
+              <div class="md:col-span-2">
+                <label class="block text-sm font-bold text-gray-700 mb-2">
+                  <i class="fas fa-door-open text-blue-400 mr-2"></i>Ruangan
+                  <span class="text-red-500">*</span>
+                </label>
+                <select
+                  id="roomSelect"
+                  name="room_id"
+                  class="w-full rounded-lg border-2 border-gray-200 focus:border-blue-400 focus:outline-none p-3 transition bg-gray-50"
+                  required
+                >
+                </select>
+                  <!-- ✅ TAMBAH: Peringatan Jadwal Bentrok -->
+  <div id="quickAddConflictWarning" class="hidden mt-3 bg-red-50 border-l-4 border-red-500 p-3 rounded">
+    <div class="flex items-start gap-2">
+      <i class="fas fa-exclamation-circle text-red-600 text-lg mt-0.5 flex-shrink-0"></i>
+      <div>
+        <p class="text-sm font-bold text-red-700">⚠️ Jadwal Bentrok!</p>
+        <p class="text-xs text-red-600 mt-1">Ruangan ini sudah dipesan pada waktu tersebut.</p>
+        <p class="text-xs text-red-500 mt-1 font-semibold">Jadwal bentrok TIDAK diizinkan di kalender ini.</p>
+      </div>
+    </div>
+  </div>
+              </div>
+
+              <!-- Waktu Mulai (Kolom 1) -->
+              <div>
+                <label class="block text-sm font-bold text-gray-700 mb-2">
+                  <i class="fas fa-play-circle text-blue-400 mr-2"></i>Waktu
+                  Mulai <span class="text-red-500">*</span>
+                </label>
+                <input
+                  type="datetime-local"
+                  id="startTime"
+                  name="start_time"
+                  class="w-full rounded-lg border-2 border-gray-200 focus:border-blue-400 focus:outline-none p-3 transition bg-gray-50"
+                  required
+                />
+              </div>
+
+              <!-- Waktu Selesai (Kolom 2) -->
+              <div>
+                <label class="block text-sm font-bold text-gray-700 mb-2">
+                  <i class="fas fa-stop-circle text-blue-400 mr-2"></i>Waktu
+                  Selesai <span class="text-red-500">*</span>
+                </label>
+                <input
+                  type="datetime-local"
+                  id="endTime"
+                  name="end_time"
+                  class="w-full rounded-lg border-2 border-gray-200 focus:border-blue-400 focus:outline-none p-3 transition bg-gray-50"
+                  required
+                />
+              </div>
+
+              <!-- Availability Status (Full Width) -->
+              <div
+                id="availabilityStatus"
+                class="hidden md:col-span-2 rounded-lg p-3 border-l-4 text-sm font-semibold"
+              ></div>
+
+              <!-- Penyelenggara (Kolom 1) -->
+              <div>
+                <label class="block text-sm font-bold text-gray-700 mb-2">
+                  <i class="fas fa-user-tie text-blue-400 mr-2"></i
+                  >Penyelenggara <span class="text-red-500">*</span>
+                </label>
+                <input
+                  type="text"
+                  name="organizer_name"
+                  class="w-full rounded-lg border-2 border-gray-200 focus:border-blue-400 focus:outline-none p-3 transition bg-gray-50"
+                  placeholder="Nama lengkap"
+                  required
+                />
+              </div>
+
+              <!-- Kontak (Kolom 2) -->
+              <div>
+                <label class="block text-sm font-bold text-gray-700 mb-2">
+                  <i class="fas fa-phone text-blue-400 mr-2"></i>Kontak
+                  <span class="text-red-500">*</span>
+                </label>
+                <input
+                  type="tel"
+                  name="organizer_phone"
+                  class="w-full rounded-lg border-2 border-gray-200 focus:border-blue-400 focus:outline-none p-3 transition bg-gray-50"
+                  placeholder="08xx-xxxx-xxxx"
+                  required
+                />
+              </div>
+
+              <!-- PIC (Kolom 1) -->
+              <div>
+                <label class="block text-sm font-bold text-gray-700 mb-2">
+                  <i class="fas fa-badge-check text-blue-400 mr-2"></i>Person In
+                  Charge (PIC)
+                </label>
+                <input
+                  type="text"
+                  name="pic_name"
+                  class="w-full rounded-lg border-2 border-gray-200 focus:border-blue-400 focus:outline-none p-3 transition bg-gray-50"
+                  placeholder="Nama PIC"
+                />
+              </div>
+
+              <!-- Jumlah Peserta (Kolom 2) -->
+              <div>
+                <label class="block text-sm font-bold text-gray-700 mb-2">
+                  <i class="fas fa-users text-blue-400 mr-2"></i>Jumlah Peserta
+                  <span class="text-red-500">*</span>
+                </label>
+                <input
+                  type="number"
+                  id="participantsCount"
+                  name="participants_count"
+                  class="w-full rounded-lg border-2 border-gray-200 focus:border-blue-400 focus:outline-none p-3 transition bg-gray-50"
+                  placeholder="Jumlah orang"
+                  min="1"
+                  required
+                />
+              </div>
+
+              <!-- Participants Warning (Full Width) -->
+              <div
+                id="participantsWarning"
+                class="hidden md:col-span-2 rounded-lg p-2 text-red-600 text-xs font-semibold bg-red-50 border border-red-200"
+              ></div>
+
+
+              <div class="md:col-span-2">
+  <label class="block text-sm font-bold text-gray-700 mb-2">
+    <i class="fas fa-video text-blue-400 mr-2"></i>Link Meeting
+  </label>
+  <input
+    type="url"
+    name="meeting_link"
+    class="w-full rounded-lg border-2 border-gray-200 focus:border-blue-400 focus:outline-none p-3 transition bg-gray-50"
+    placeholder="https://zoom.us/j/... atau https://meet.google.com/..."
+  />
+  <p class="text-xs text-gray-500 mt-1">Opsional - Link untuk mengakses meeting</p>
+</div>
+
+              <!-- Catatan (Full Width) -->
+              <div class="md:col-span-2">
+                <label class="block text-sm font-bold text-gray-700 mb-2">
+                  <i class="fas fa-sticky-note text-blue-400 mr-2"></i>Catatan
+                </label>
+                <textarea
+                  name="notes"
+                  class="w-full rounded-lg border-2 border-gray-200 focus:border-blue-400 focus:outline-none p-3 transition bg-gray-50"
+                  placeholder="Catatan tambahan (opsional)"
+                  rows="3"
+                ></textarea>
+              </div>
+
+              <!-- Poster (Full Width) -->
+              <div class="md:col-span-2">
+                <label class="block text-sm font-bold text-gray-700 mb-2">
+                  <i class="fas fa-image text-blue-400 mr-2"></i>Poster Event
+                </label>
+                <input
+                  type="file"
+                  name="poster"
+                  accept="image/*"
+                  class="w-full rounded-lg border-2 border-gray-200 focus:border-blue-400 focus:outline-none p-3 transition bg-gray-50"
+                />
+                <p class="text-xs text-gray-500 mt-1">
+                  Format: JPG, PNG (Maks 5MB)
+                </p>
+              </div>
+            </div>
+          </form>
+
+          <!-- Buttons (Sticky) -->
+          <div
+            class="flex gap-3 p-6 border-t border-gray-100 bg-white flex-shrink-0"
+          >
+            <button
+              type="button"
+              onclick="closeModal()"
+              class="flex-1 bg-gray-100 hover:bg-gray-200 text-gray-700 py-3 px-4 rounded-xl font-bold transition btn-smooth"
+            >
+              <i class="fas fa-times mr-2"></i> Batal
+            </button>
+            <button
+              type="submit"
+              form="bookingForm"
+              id="btnSave"
+              class="flex-1 bg-blue-400 hover:bg-blue-500 text-white py-3 px-4 rounded-xl font-bold shadow-lg transition btn-smooth flex items-center justify-center gap-2"
+            >
+              <i class="fas fa-check-circle"></i> Simpan Booking
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+
+
+        <!-- ========== MODAL: FULL POSTER (FULL SCREEN) ========== -->
+        <div
+          id="posterModal"
+          class="fixed inset-0 z-[90] hidden bg-black bg-opacity-60 flex items-center justify-center p-4"
+          role="dialog"
+          aria-modal="true"
+        >
+          <!-- Image Container -->
+            <div class="relative max-w-4xl max-h-[95vh] w-full flex items-center justify-center">
+            <!-- Gambar Poster (TERANG) -->
+            <img
+              id="posterModalImg"
+              src=""
+              alt="Event Poster Full Screen"
+              class="w-full h-auto max-h-[95vh] object-contain rounded-lg shadow-2xl"
+            />
+            
+                <!-- Tombol Close (Top Right) -->
+    <button
+      onclick="closePosterModal()"
+      class="absolute top-4 right-4 bg-white hover:bg-gray-100 text-gray-900 rounded-full w-10 h-10 flex items-center justify-center shadow-lg transition hover:shadow-xl"
+      title="Tutup (ESC)"
+    >
+      <i class="fas fa-times text-xl"></i>
+    </button>
+  </div>
+        
+            <!-- Info at Bottom -->
+  <div class="absolute bottom-6 left-6 right-6 text-white text-sm px-4 py-3 rounded-lg">
+    <p class="flex items-center gap-2">
+      <i class="fas fa-info-circle"></i>
+      Tekan <kbd class="bg-gray-700 px-2 py-1 rounded ml-1">ESC</kbd> untuk menutup
+    </p>
+  </div>
+</div>
+
+<!-- ========== MODAL: FULL DOKUMENTASI (FULL SCREEN) ========== -->
+<div
+  id="documentationModal"
+  class="fixed inset-0 z-[90] hidden bg-black bg-opacity-60 flex items-center justify-center p-4"
+  role="dialog"
+  aria-modal="true"
+>
+  <!-- Image Container -->
+  <div class="relative max-w-4xl max-h-[95vh] w-full flex items-center justify-center">
+    <!-- Gambar Dokumentasi (TERANG) -->
+    <img
+      id="documentationModalImg"
+      src=""
+      alt="Dokumentasi Full Screen"
+      class="w-full h-auto max-h-[95vh] object-contain rounded-lg shadow-2xl"
+    />
+    
+    <!-- Tombol Close (Top Right) -->
+    <button
+      onclick="closeDocumentationModal()"
+      class="absolute top-4 right-4 bg-white hover:bg-gray-100 text-gray-900 rounded-full w-10 h-10 flex items-center justify-center shadow-lg transition hover:shadow-xl"
+      title="Tutup (ESC)"
+    >
+      <i class="fas fa-times text-xl"></i>
+    </button>
+  </div>
+
+  <!-- Info at Bottom -->
+  <div class="absolute bottom-6 left-6 right-6 text-white text-sm px-4 py-3 rounded-lg">
+    <p class="flex items-center gap-2">
+      <i class="fas fa-info-circle"></i>
+      Tekan <kbd class="bg-gray-700 px-2 py-1 rounded ml-1">ESC</kbd> untuk menutup
+    </p>
+  </div>
+</div>
+    <!-- ========== MODAL: GUIDE ========== -->
+    <div
+      id="guideModal"
+      class="fixed inset-0 z-50 hidden backdrop-blur-sm"
+      role="dialog"
+      aria-modal="true"
+    >
+      <div
+        class="fixed inset-0 bg-gray-900 bg-opacity-40 transition-opacity"
+      ></div>
+      <div
+        class="fixed inset-0 z-10 overflow-y-auto flex items-center justify-center p-4"
+      >
+        <div
+          class="modal-content bg-white rounded-2xl shadow-2xl max-w-lg w-full flex flex-col max-h-[90vh] border border-gray-100"
+        >
+          <!-- Header -->
+          <div
+            class="px-6 py-5 border-b border-gray-100 flex justify-between items-center bg-gray-50"
+          >
+            <h3
+              class="text-2xl font-bold text-gray-900 flex items-center gap-2"
+            >
+              <i class="fas fa-circle-info text-blue-400"></i> Panduan
+              Penggunaan
+            </h3>
+            <button
+              onclick="closeGuideModal()"
+              class="text-gray-400 hover:text-gray-600 transition text-2xl"
+            >
+              <i class="fas fa-times"></i>
+            </button>
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <!-- ========== MODAL: CREATE CALENDAR ========== -->
+    <div
+      id="createCalendarModal"
+      class="fixed inset-0 z-50 hidden backdrop-blur-sm"
+      role="dialog"
+      aria-modal="true"
+    >
+      <div
+        class="fixed inset-0 bg-gray-900 bg-opacity-40 transition-opacity"
+      ></div>
+      <div
+        class="fixed inset-0 z-10 overflow-y-auto flex items-center justify-center p-4"
+      >
+        <div
+          class="modal-content relative transform overflow-hidden rounded-2xl bg-white text-left shadow-2xl w-full max-w-md flex flex-col max-h-[90vh]"
+        >
+          <!-- Header -->
+          <div
+            class="bg-purple-400 px-6 py-5 flex justify-between items-center flex-shrink-0"
+          >
+            <div>
+              <h3 class="text-2xl font-bold text-white flex items-center gap-2">
+                <i class="fas fa-plus-circle"></i> Buat Kalender Baru
+              </h3>
+              <p class="text-purple-100 text-sm mt-1">Kalender terpisah untuk event Anda</p>
+            </div>
+            <button
+              onclick="closeCreateCalendarModal()"
+              class="text-purple-100 hover:text-white transition text-2xl"
+            >
+              <i class="fas fa-times"></i>
+            </button>
+          </div>
+
+          <!-- Form (Scrollable) -->
+          <form
+            id="createCalendarForm"
+            class="px-6 py-8 space-y-5 overflow-y-auto flex-1"
+          >
+            <!-- Nama Kalender -->
+            <div>
+              <label class="block text-sm font-bold text-gray-700 mb-2">
+                <i class="fas fa-calendar text-purple-400 mr-2"></i>Nama Kalender
+                <span class="text-red-500">*</span>
+              </label>
+              <input
+                type="text"
+                name="name"
+                class="w-full rounded-lg border-2 border-gray-200 focus:border-purple-400 focus:outline-none p-3 transition bg-gray-50"
+                placeholder="Cth: kalender-dimas"
+                required
+              />
+            </div>
+
+            <!-- PIN (Opsional) -->
+            <div>
+              <label class="block text-sm font-bold text-gray-700 mb-2">
+                <i class="fas fa-lock text-purple-400 mr-2"></i>PIN (Opsional)
+              </label>
+              <input
+                type="password"
+                name="pin"
+                class="w-full rounded-lg border-2 border-gray-200 focus:border-purple-400 focus:outline-none p-3 transition bg-gray-50"
+                placeholder="PIN untuk melindungi settings"
+              />
+              <p class="text-xs text-gray-500 mt-1">
+                Jika kosong, settings public. PIN di-hash untuk keamanan.
+              </p>
+            </div>
+          </form>
+
+          <!-- Buttons (Sticky) -->
+          <div
+            class="flex gap-3 p-6 border-t border-gray-100 bg-white flex-shrink-0"
+          >
+            <button
+              type="button"
+              onclick="closeCreateCalendarModal()"
+              class="flex-1 bg-gray-100 hover:bg-gray-200 text-gray-700 py-3 px-4 rounded-xl font-bold transition btn-smooth"
+            >
+              <i class="fas fa-times mr-2"></i> Batal
+            </button>
+            <button
+              type="submit"
+              form="createCalendarForm"
+              class="flex-1 bg-purple-400 hover:bg-purple-500 text-white py-3 px-4 rounded-xl font-bold shadow-lg transition btn-smooth flex items-center justify-center gap-2"
+            >
+              <i class="fas fa-check-circle"></i> Buat Kalender
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+        <!-- ========== MODAL: QUICK ADD EVENT/REMINDER ========== -->
+        <div
+          id="quickAddModal"
+          class="fixed inset-0 z-50 hidden backdrop-blur-sm"
+          role="dialog"
+          aria-modal="true"
+        >
+          <div
+            class="fixed inset-0 bg-gray-900 bg-opacity-40 transition-opacity"
+          ></div>
+          <div
+            class="fixed inset-0 z-10 overflow-y-auto flex items-center justify-center p-4"
+          >
+            <div
+              class="modal-content relative transform overflow-hidden rounded-2xl bg-white text-left shadow-2xl w-full max-w-2xl flex flex-col max-h-[90vh]"
+            >
+              <!-- Header dengan Tabs - SAMAKAN DENGAN MANUAL -->
+              <div class="bg-blue-400 px-6 py-5 flex justify-between items-center flex-shrink-0">
+                <div>
+                  <h3 class="text-2xl font-bold text-white flex items-center gap-2">
+                    <i class="fas fa-plus-circle"></i> Tambah Acara
+                  </h3>
+                  <p class="text-blue-100 text-sm mt-1">Isi formulir untuk membuat event atau pengingat</p>
+                </div>
+                <button
+                  onclick="closeQuickAddModal()"
+                  class="text-blue-100 hover:text-white transition text-2xl"
+                >
+                  <i class="fas fa-times"></i>
+                </button>
+              </div>
+        
+              <!-- Tab Navigation - SESUAIKAN WARNA BIRU -->
+              <div class="flex gap-0 border-b border-gray-200 bg-gray-50 px-6">
+                <button
+                  onclick="switchQuickAddTab('event')"
+                  id="quick-add-tab-event"
+                  class="quick-add-tab-btn px-6 py-4 text-sm font-bold border-b-4 border-blue-400 text-blue-600 transition hover:text-blue-700"
+                >
+                  <i class="fas fa-calendar-plus mr-2"></i> Event
+                </button>
+                <button
+                  onclick="switchQuickAddTab('reminder')"
+                  id="quick-add-tab-reminder"
+                  class="quick-add-tab-btn px-6 py-4 text-sm font-bold border-b-4 border-transparent text-gray-600 transition hover:text-blue-600"
+                >
+                  <i class="fas fa-bell mr-2"></i> Pengingat
+                </button>
+                <button
+  onclick="switchQuickAddTab('holiday')"
+  id="quick-add-tab-holiday"
+  class="quick-add-tab-btn px-6 py-4 text-sm font-bold border-b-4 border-transparent text-gray-600 transition hover:text-red-600"
+>
+  <i class="fas fa-calendar-check mr-2"></i> Hari Libur
+</button>
+              </div>
+        
+              <!-- Tab Content -->
+              <div class="flex-1 overflow-y-auto">
+                <!-- TAB 1: QUICK ADD EVENT -->
+                <div id="quick-add-content-event" class="quick-add-tab-content px-6 py-8">
+                  <form id="quickAddEventForm" class="space-y-5">
+                    <!-- Grid 2 Kolom -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                      <!-- Ruangan (Full Width) -->
+                      <div class="md:col-span-2">
+                        <label class="block text-sm font-bold text-gray-700 mb-2">
+                          <i class="fas fa-door-open text-blue-400 mr-2"></i>Ruangan
+                          <span class="text-red-500">*</span>
+                        </label>
+                        <select
+                          name="quick_room_id"
+                          class="w-full rounded-lg border-2 border-gray-200 focus:border-blue-400 focus:outline-none p-3 transition bg-gray-50"
+                          required
+                        >
+                          <option value="">-- Pilih Ruangan --</option>
+                        </select>
+                          <!-- ✅ TAMBAH: Peringatan Jadwal Bentrok -->
+  <div id="quickAddEventConflictWarning" class="hidden mt-3 bg-red-50 border-l-4 border-red-500 p-3 rounded">
+    <div class="flex items-start gap-2">
+      <i class="fas fa-exclamation-circle text-red-600 text-lg mt-0.5 flex-shrink-0"></i>
+      <div>
+        <p class="text-sm font-bold text-red-700">Jadwal Bentrok!</p>
+        <p class="text-xs text-red-600 mt-1">Ruangan ini sudah dipesan pada waktu tersebut.</p>
+        <p class="text-xs text-red-500 mt-1 font-semibold">Jadwal bentrok TIDAK diizinkan di kalender ini.</p>
+      </div>
+    </div>
+  </div>
+                      </div>
+        
+                      <!-- Judul Event (Full Width) -->
+                      <div class="md:col-span-2">
+                        <label class="block text-sm font-bold text-gray-700 mb-2">
+                          <i class="fas fa-heading text-blue-400 mr-2"></i>Judul Event
+                          <span class="text-red-500">*</span>
+                        </label>
+                        <input
+                          type="text"
+                          name="quick_title"
+                          class="w-full rounded-lg border-2 border-gray-200 focus:border-blue-400 focus:outline-none p-3 transition bg-gray-50"
+                          placeholder="Cth: Rapat Rutin"
+                          required
+                        />
+                      </div>
+        
+                      <!-- Tanggal (Hidden, diisi otomatis) -->
+                      <input type="hidden" name="quick_event_date" value="" />
+        
+                      <!-- Waktu Mulai (Kolom 1) -->
+                      <div>
+                        <label class="block text-sm font-bold text-gray-700 mb-2">
+                          <i class="fas fa-play-circle text-blue-400 mr-2"></i>Waktu Mulai
+                          <span class="text-red-500">*</span>
+                        </label>
+                        <input
+                          type="time"
+                          name="quick_start_time"
+                          class="w-full rounded-lg border-2 border-gray-200 focus:border-blue-400 focus:outline-none p-3 transition bg-gray-50"
+                          required
+                        />
+                      </div>
+        
+                      <!-- Waktu Selesai (Kolom 2) -->
+                      <div>
+                        <label class="block text-sm font-bold text-gray-700 mb-2">
+                          <i class="fas fa-stop-circle text-blue-400 mr-2"></i>Waktu Selesai
+                          <span class="text-red-500">*</span>
+                        </label>
+                        <input
+                          type="time"
+                          name="quick_end_time"
+                          class="w-full rounded-lg border-2 border-gray-200 focus:border-blue-400 focus:outline-none p-3 transition bg-gray-50"
+                          required
+                        />
+                      </div>
+        
+        
+                      <!-- Penyelenggara (Kolom 1) -->
+                      <div>
+                        <label class="block text-sm font-bold text-gray-700 mb-2">
+                          <i class="fas fa-user-tie text-blue-400 mr-2"></i>Penyelenggara
+                        </label>
+                        <input
+                          type="text"
+                          name="quick_organizer_name"
+                          class="w-full rounded-lg border-2 border-gray-200 focus:border-blue-400 focus:outline-none p-3 transition bg-gray-50"
+                          placeholder="Nama penyelenggara"
+                        />
+                      </div>
+        
+                      <!-- Kontak (Kolom 2) -->
+                      <div>
+                        <label class="block text-sm font-bold text-gray-700 mb-2">
+                          <i class="fas fa-phone text-blue-400 mr-2"></i>Kontak
+                        </label>
+                        <input
+                          type="text"
+                          name="quick_organizer_phone"
+                          class="w-full rounded-lg border-2 border-gray-200 focus:border-blue-400 focus:outline-none p-3 transition bg-gray-50"
+                          placeholder="Nomor telepon"
+                        />
+                      </div>
+        
+                      <!-- PIC (Kolom 1) -->
+                      <div>
+                        <label class="block text-sm font-bold text-gray-700 mb-2">
+                          <i class="fas fa-badge-check text-blue-400 mr-2"></i>PIC
+                        </label>
+                        <input
+                          type="text"
+                          name="quick_pic_name"
+                          class="w-full rounded-lg border-2 border-gray-200 focus:border-blue-400 focus:outline-none p-3 transition bg-gray-50"
+                          placeholder="Person In Charge"
+                        />
+                      </div>
+        
+                      <!-- Jumlah Peserta (Kolom 2) -->
+                      <div>
+                        <label class="block text-sm font-bold text-gray-700 mb-2">
+                          <i class="fas fa-users text-blue-400 mr-2"></i>Jumlah Peserta
+                        </label>
+                        <input
+                          type="number"
+                          name="quick_participants_count"
+                          class="w-full rounded-lg border-2 border-gray-200 focus:border-blue-400 focus:outline-none p-3 transition bg-gray-50"
+                          placeholder="Jumlah orang"
+                        />
+                      </div>
+        
+                      <!-- Link Meeting (Full Width) -->
+                      <div class="md:col-span-2">
+                        <label class="block text-sm font-bold text-gray-700 mb-2">
+                          <i class="fas fa-video text-blue-400 mr-2"></i>Link Meeting
+                          <span class="text-xs text-gray-500">(Zoom/Google Meet)</span>
+                        </label>
+                        <input
+                          type="url"
+                          name="quick_meeting_link"
+                          class="w-full rounded-lg border-2 border-gray-200 focus:border-blue-400 focus:outline-none p-3 transition bg-gray-50"
+                          placeholder="https://zoom.us/j/... atau https://meet.google.com/..."
+                        />
+                      </div>
+        
+                      <!-- Catatan (Full Width) -->
+                      <div class="md:col-span-2">
+                        <label class="block text-sm font-bold text-gray-700 mb-2">
+                          <i class="fas fa-sticky-note text-blue-400 mr-2"></i>Catatan
+                        </label>
+                        <textarea
+                          name="quick_notes"
+                          class="w-full rounded-lg border-2 border-gray-200 focus:border-blue-400 focus:outline-none p-3 transition bg-gray-50"
+                          placeholder="Catatan tambahan"
+                          rows="3"
+                        ></textarea>
+                      </div>
+        
+                      <!-- Poster Event (Full Width) -->
+                      <div class="md:col-span-2">
+                        <label class="block text-sm font-bold text-gray-700 mb-2">
+                          <i class="fas fa-image text-blue-400 mr-2"></i>Poster Event
+                        </label>
+                        <input
+                          type="file"
+                          name="quick_poster"
+                          accept="image/*"
+                          class="w-full rounded-lg border-2 border-gray-200 focus:border-blue-400 focus:outline-none p-3 transition bg-gray-50"
+                        />
+                        <p class="text-xs text-gray-500 mt-1">Format: JPG, PNG (Maks 5MB)</p>
+                      </div>
+                    </div>
+                  </form>
+                </div>
+        
+                <!-- TAB 2: QUICK ADD REMINDER -->
+                <div id="quick-add-content-reminder" class="quick-add-tab-content hidden px-6 py-8">
+                  <form id="quickAddReminderForm" class="space-y-5">
+                    <!-- Judul Pengingat (Full Width) -->
+                    <div>
+                      <label class="block text-sm font-bold text-gray-700 mb-2">
+                        <i class="fas fa-bell text-blue-400 mr-2"></i>Judul Pengingat
+                        <span class="text-red-500">*</span>
+                      </label>
+                      <input
+                        type="text"
+                        name="quick_reminder_title"
+                        class="w-full rounded-lg border-2 border-gray-200 focus:border-blue-400 focus:outline-none p-3 transition bg-gray-50"
+                        placeholder="Cth: Rapat Tim Proyek"
+                        required
+                      />
+                    </div>
+        
+                    <!-- Tanggal (Hidden, diisi otomatis) -->
+                    <input
+                      type="hidden"
+                      name="quick_reminder_date"
+                      value=""
+                    />
+        
+                    <!-- Catatan (Full Width) -->
+                    <div>
+                      <label class="block text-sm font-bold text-gray-700 mb-2">
+                        <i class="fas fa-sticky-note text-blue-400 mr-2"></i>Catatan
+                      </label>
+                      <textarea
+                        name="quick_reminder_notes"
+                        class="w-full rounded-lg border-2 border-gray-200 focus:border-blue-400 focus:outline-none p-3 transition bg-gray-50"
+                        placeholder="Catatan tambahan"
+                        rows="4"
+                      ></textarea>
+                    </div>
+        
+                    <!-- Info -->
+                    <div class="bg-blue-50 p-4 rounded-lg border-l-4 border-blue-400">
+                      <p class="text-sm text-gray-700">
+                        <i class="fas fa-info-circle text-blue-400 mr-2"></i>
+                        Pengingat hanya menampilkan tanggal, tanpa waktu spesifik.
+                      </p>
+                    </div>
+                  </form>
+                </div>
+                <div id="quick-add-content-holiday" class="quick-add-tab-content hidden px-6 py-8">
+  <form id="quickAddHolidayForm" class="space-y-5">
+    <!-- Nama Hari Libur (Full Width) -->
+    <div>
+      <label class="block text-sm font-bold text-gray-700 mb-2">
+        <i class="fas fa-heading text-red-400 mr-2"></i>Nama Hari Libur
+        <span class="text-red-500">*</span>
+      </label>
+      <input
+        type="text"
+        name="quick_holiday_name"
+        class="w-full rounded-lg border-2 border-gray-200 focus:border-red-400 focus:outline-none p-3 transition bg-gray-50"
+        placeholder="Cth: Hari Raya Idul Fitri"
+        required
+      />
+    </div>
+
+    <!-- Tanggal (Hidden, diisi otomatis dari klik kalender) -->
+    <input type="hidden" name="quick_holiday_date" value="" />
+
+    <!-- Info -->
+    <div class="bg-red-50 p-4 rounded-lg border-l-4 border-red-400">
+      <p class="text-sm text-gray-700">
+        <i class="fas fa-info-circle text-red-400 mr-2"></i>
+        Hari libur akan ditampilkan dengan warna merah di kalender dan dapat dihapus kapan saja.
+      </p>
+    </div>
+  </form>
+</div>
+
+              </div>
+        
+              <!-- Buttons (Sticky) - SAMAKAN DENGAN MANUAL -->
+              <div class="flex gap-3 p-6 border-t border-gray-100 bg-white flex-shrink-0">
+                <button
+                  type="button"
+                  onclick="closeQuickAddModal()"
+                  class="flex-1 bg-gray-100 hover:bg-gray-200 text-gray-700 py-3 px-4 rounded-xl font-bold transition btn-smooth"
+                >
+                  <i class="fas fa-times mr-2"></i> Batal
+                </button>
+                <button
+                  type="button"
+                  id="quickAddSubmitBtn"
+                  onclick="submitQuickAdd()"
+                  class="flex-1 bg-blue-400 hover:bg-blue-500 text-white py-3 px-4 rounded-xl font-bold shadow-lg transition btn-smooth flex items-center justify-center gap-2"
+                >
+                  <i class="fas fa-check-circle"></i> Simpan
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+    
+
+    <!-- ========== MODAL: PIN VERIFICATION ========== -->
+    <div
+      id="pinVerificationModal"
+      class="fixed inset-0 z-50 hidden backdrop-blur-sm"
+      role="dialog"
+      aria-modal="true"
+    >
+      <div
+        class="fixed inset-0 bg-gray-900 bg-opacity-60 transition-opacity"
+      ></div>
+      <div class="fixed inset-0 z-10 flex items-center justify-center p-4">
+        <div
+          class="modal-content relative transform overflow-hidden rounded-2xl bg-white text-left shadow-2xl w-full max-w-md"
+        >
+          <!-- Header -->
+          <div class="bg-blue-400 px-6 py-5 flex items-center gap-3 flex-shrink-0">
+            <i class="fas fa-lock text-white text-2xl"></i>
+            <div>
+              <h3 class="text-2xl font-bold text-white">Verifikasi PIN</h3>
+              <p class="text-blue-100 text-sm mt-1">Masukkan PIN untuk mengakses kalender</p>
+            </div>
+          </div>
+
+          <!-- Content -->
+          <form id="pinVerificationForm" class="px-6 py-8 space-y-5">
+            <!-- PIN Input -->
+            <div>
+              <label class="block text-sm font-bold text-gray-700 mb-2">
+                <i class="fas fa-key text-blue-400 mr-2"></i>PIN
+                <span class="text-red-500">*</span>
+              </label>
+              <input
+                type="password"
+                id="pinInput"
+                name="pin"
+                class="w-full rounded-lg border-2 border-gray-200 focus:border-blue-400 focus:outline-none p-3 transition bg-gray-50 text-lg tracking-widest"
+                placeholder="••••"
+                maxlength="6"
+                required
+                autofocus
+              />
+              <div id="pinError" class="hidden mt-2 text-red-600 text-sm font-semibold flex items-center gap-2">
+                <i class="fas fa-exclamation-circle"></i>
+                <span id="pinErrorText"></span>
+              </div>
+            </div>
+
+            <!-- Info -->
+            <div class="bg-blue-50 p-4 rounded-lg border-l-4 border-blue-400">
+              <p class="text-sm text-gray-700">
+                <i class="fas fa-info-circle text-blue-400 mr-2"></i>
+                Masukkan PIN yang telah ditentukan untuk kalender ini.
+              </p>
+            </div>
+          </form>
+
+          <!-- Buttons -->
+          <div
+            class="flex gap-3 p-6 border-t border-gray-100 bg-white flex-shrink-0"
+          >
+            <button
+              type="button"
+              onclick="window.location.href='/'"
+              class="flex-1 bg-gray-100 hover:bg-gray-200 text-gray-700 py-3 px-4 rounded-xl font-bold transition btn-smooth"
+            >
+              <i class="fas fa-arrow-left mr-2"></i> Kembali
+            </button>
+            <button
+              type="submit"
+              form="pinVerificationForm"
+              id="btnVerifyPin"
+              class="flex-1 bg-blue-400 hover:bg-blue-500 text-white py-3 px-4 rounded-xl font-bold shadow-lg transition btn-smooth flex items-center justify-center gap-2"
+            >
+              <i class="fas fa-check-circle"></i> Verifikasi
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+        <!-- ========== MODAL: EVENT SUMMARY (FORMAT TEKS) ========== -->
+    <div
+      id="eventSummaryModal"
+      class="fixed inset-0 z-50 hidden backdrop-blur-sm"
+      role="dialog"
+      aria-modal="true"
+    >
+      <div
+        class="fixed inset-0 bg-gray-900 bg-opacity-40 transition-opacity"
+      ></div>
+      <div class="fixed inset-0 z-10 overflow-y-auto flex items-center justify-center p-4">
+        <div
+          class="modal-content relative transform overflow-hidden rounded-2xl bg-white text-left shadow-2xl w-full max-w-2xl flex flex-col max-h-[90vh] border border-gray-100"
+        >
+          <!-- Header -->
+          <div class="bg-blue-400 px-6 py-5 flex justify-between items-center flex-shrink-0">
+            <div>
+              <h3 class="text-2xl font-bold text-white flex items-center gap-2">
+                <i class="fas fa-share-alt"></i> Ringkasan Agenda Hari Ini
+              </h3>
+              <p class="text-blue-100 text-sm mt-1">Format siap bagikan</p>
+            </div>
+            <button
+              onclick="closeEventSummaryModal()"
+              class="text-blue-100 hover:text-white transition text-2xl"
+            >
+              <i class="fas fa-times"></i>
+            </button>
+          </div>
+    
+          <!-- Content -->
+          <div class="p-6 overflow-y-auto flex-1 space-y-4">
+            <!-- Info -->
+            <div class="bg-blue-50 p-4 rounded-lg border-l-4 border-blue-400">
+              <p class="text-sm text-gray-700">
+                <i class="fas fa-info-circle text-blue-400 mr-2"></i>
+                Teks di bawah dapat disalin, diedit, atau diunduh. Cocok untuk dibagikan kepada tim atau atasan.
+              </p>
+            </div>
+    
+            <!-- Summary Text Area -->
+            <div>
+              <label class="block text-sm font-bold text-gray-700 mb-2">
+                <i class="fas fa-file-alt text-blue-400 mr-2"></i>Teks Agenda
+              </label>
+              <textarea
+                id="summaryText"
+                class="w-full rounded-lg border-2 border-gray-200 focus:border-blue-400 focus:outline-none p-4 transition bg-gray-50"
+                rows="12"
+                placeholder="Ringkasan agenda akan ditampilkan di sini..."
+              ></textarea>
+            </div>
+    
+            <!-- Character Count -->
+            <div class="flex items-center justify-between text-xs text-gray-500">
+              <span>
+                <i class="fas fa-keyboard mr-1"></i>
+                <span id="charCount">0</span> karakter
+              </span>
+              <span id="lineCount">0</span> baris
+            </div>
+          </div>
+    
+          <!-- Buttons -->
+          <div class="px-6 py-4 border-t border-gray-100 bg-gray-50 flex flex-wrap gap-2 justify-end">
+            <button
+              type="button"
+              onclick="clearSummaryText()"
+              class="bg-red-100 hover:bg-red-200 text-red-700 px-4 py-2 rounded-lg font-bold text-sm transition flex items-center gap-2"
+            >
+              <i class="fas fa-eraser"></i> Hapus
+            </button>
+            <button
+              type="button"
+              onclick="downloadSummaryAsFile()"
+              class="bg-green-100 hover:bg-green-200 text-green-700 px-4 py-2 rounded-lg font-bold text-sm transition flex items-center gap-2"
+            >
+              <i class="fas fa-download"></i> Unduh
+            </button>
+            <button
+              type="button"
+              onclick="copySummaryToClipboard()"
+              class="bg-blue-100 hover:bg-blue-200 text-blue-700 px-4 py-2 rounded-lg font-bold text-sm transition flex items-center gap-2"
+            >
+              <i class="fas fa-copy"></i> Salin
+            </button>
+            <button
+              type="button"
+              onclick="closeEventSummaryModal()"
+              class="bg-gray-100 hover:bg-gray-200 text-gray-700 px-4 py-2 rounded-lg font-bold text-sm transition flex items-center gap-2"
+            >
+              <i class="fas fa-times"></i> Tutup
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
+    <script src="https://unpkg.com/@popperjs/core@2"></script>
+    <script src="https://unpkg.com/tippy.js@6"></script>
+    <script>
+      // Variabel dari server
+      const calendarName = '<%= calendarName %>';
+      const hasPin = <%= hasPin %>;
+      const requiresPin = <%= requiresPin %>;
+
+      // Tampilkan modal PIN jika diperlukan
+      if (requiresPin) {
+        document.getElementById('pinVerificationModal').classList.remove('hidden');
+      }
+
+      // PIN Verification Form
+      document.getElementById('pinVerificationForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const pin = document.getElementById('pinInput').value;
+        const errorDiv = document.getElementById('pinError');
+        const errorText = document.getElementById('pinErrorText');
+        const btnVerify = document.getElementById('btnVerifyPin');
+
+        try {
+          btnVerify.disabled = true;
+          btnVerify.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Memverifikasi...';
+
+          const response = await fetch(`/${calendarName}/verify-pin`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ pin })
+          });
+
+          if (response.ok) {
+            // PIN benar, reload halaman tanpa PIN di URL
+            window.location.href = `/${calendarName}`;
+          } else {
+            // PIN salah
+            errorDiv.classList.remove('hidden');
+            errorText.textContent = 'PIN salah, silakan coba lagi';
+            document.getElementById('pinInput').value = '';
+            document.getElementById('pinInput').focus();
+            btnVerify.disabled = false;
+            btnVerify.innerHTML = '<i class="fas fa-check-circle"></i> Verifikasi';
+          }
+        } catch (error) {
+          console.error('Error verifying PIN:', error);
+          errorDiv.classList.remove('hidden');
+          errorText.textContent = 'Terjadi kesalahan, silakan coba lagi';
+          btnVerify.disabled = false;
+          btnVerify.innerHTML = '<i class="fas fa-check-circle"></i> Verifikasi';
+        }
+      });
+
+      
+      function showToast(message, type = 'info') {
+        let bgColor, icon, textColor, borderColor;
+      
+        if (type === 'error') {
+          bgColor = '#fee2e2'; // Merah muda
+          icon = 'fa-circle-xmark'; // Icon X merah
+          borderColor = '#fca5a5'; // Border merah
+          textColor = '#991b1b'; // Teks merah gelap
+        } else if (type === 'success') {
+          bgColor = '#dcfce7'; // Hijau muda
+          icon = 'fa-circle-check'; // Icon check hijau
+          borderColor = '#86efac'; // Border hijau
+          textColor = '#15803d'; // Teks hijau gelap
+        } else {
+          bgColor = '#dbeafe'; // Biru muda
+          icon = 'fa-circle-info'; // Icon info biru
+          borderColor = '#7dd3fc'; // Border biru
+          textColor = '#0c4a6e'; // Teks biru gelap
+        }
+      
+        Toastify({
+          text: `<div style="display: flex; align-items: center; gap: 12px; width: 100%;">
+            <i class="fas ${icon}" style="font-size: 20px; flex-shrink: 0; color: ${textColor};"></i>
+            <span style="font-weight: 600; font-size: 14px; flex: 1; color: ${textColor};">${message}</span>
+            <button onclick="this.closest('.toastify').remove();" style="background: none; border: none; color: ${textColor}; cursor: pointer; font-size: 18px; padding: 0; margin: 0; display: flex; align-items: center;">
+              <i class="fas fa-times"></i>
+            </button>
+          </div>`,
+          duration: 4000,
+          close: false,
+          gravity: 'top',
+          position: 'center',
+          escapeMarkup: false,
+          style: {
+            background: bgColor,
+            border: `2px solid ${borderColor}`,
+            borderRadius: '12px',
+            padding: '16px 20px',
+            boxShadow: '0 4px 12px rgba(0, 0, 0, 0.1)',
+            color: textColor,
+            minWidth: '350px',
+            maxWidth: '500px',
+          },
+          stopOnFocus: true,
+        }).showToast();
+      }
+    let isEditingCalendarName = false;
+    
+    function cancelEditCalendarName() {
+      isEditingCalendarName = false;
+      const titleEl = document.getElementById('calendarTitle');
+      const inputEl = document.getElementById('calendarNameInput');
+      const btnEdit = document.getElementById('editCalendarNameBtn');
+    
+      titleEl.classList.remove('hidden');
+      inputEl.classList.add('hidden');
+      btnEdit.classList.remove('hidden');
+      inputEl.value = calendarName;
+    }
+    
+    window.startEditCalendarName = function () {
+      if (isEditingCalendarName) return;
+    
+      isEditingCalendarName = true;
+      const titleEl = document.getElementById('calendarTitle');
+      const inputEl = document.getElementById('calendarNameInput');
+      const btnEdit = document.getElementById('editCalendarNameBtn');
+    
+      // Sembunyikan title, tampilkan input
+      titleEl.classList.add('hidden');
+      inputEl.classList.remove('hidden');
+      btnEdit.classList.add('hidden');
+      inputEl.focus();
+      inputEl.select();
+    
+      // Event untuk simpan/batal
+    const handleSave = async () => {
+      const newName = inputEl.value.trim();
+    
+      if (!newName) {
+        showToast('Nama kalender tidak boleh kosong', 'error');
+        inputEl.focus();
+        return;
+      }
+    
+      if (newName === calendarName) {
+        cancelEditCalendarName();
+        return;
+      }
+    
+      // Ambil PIN jika ada input settingsPin
+      let pinValue = '';
+      const pinInput = document.getElementById('settingsPin');
+      if (pinInput) {
+        pinValue = pinInput.value;
+      }
+    
+      try {
+        const res = await fetch(`/${calendarName}/rename`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ newName, pin: pinValue }) // Kirim pin ke backend
+        });
+    
+        const data = await res.json();
+    
+        if (res.ok) {
+          showToast('Nama kalender berhasil diubah!', 'success');
+          // Redirect ke URL baru
+          setTimeout(() => {
+            window.location.href = `/${newName}`;
+          }, 500);
+        } else {
+          showToast(data.message || 'Gagal mengubah nama', 'error');
+          inputEl.focus();
+        }
+      } catch (err) {
+        showToast('Terjadi kesalahan sistem', 'error');
+        console.error(err);
+        inputEl.focus();
+      }
+    };
+    
+      const handleCancel = () => {
+        cancelEditCalendarName();
+      };
+    
+      function onKey(e) {
+        if (e.key === 'Enter') {
+          inputEl.removeEventListener('keyup', onKey);
+          inputEl.removeEventListener('blur', onBlur);
+          handleSave();
+        }
+        if (e.key === 'Escape') {
+          inputEl.removeEventListener('keyup', onKey);
+          inputEl.removeEventListener('blur', onBlur);
+          handleCancel();
+        }
+      }
+      function onBlur() {
+        inputEl.removeEventListener('keyup', onKey);
+        inputEl.removeEventListener('blur', onBlur);
+        handleSave();
+      }
+    
+      inputEl.addEventListener('keyup', onKey);
+      inputEl.addEventListener('blur', onBlur);
+    };
+      function cancelEditCalendarName() {
+        isEditingCalendarName = false;
+        const titleEl = document.getElementById('calendarTitle');
+        const inputEl = document.getElementById('calendarNameInput');
+        const btnEdit = document.getElementById('editCalendarNameBtn');
+
+        titleEl.classList.remove('hidden');
+        inputEl.classList.add('hidden');
+        btnEdit.classList.remove('hidden');
+        inputEl.value = calendarName;
+      }
+    document.getElementById('btnUpdatePin').addEventListener('click', async function() {
+      const pin = document.getElementById('settingsPin').value;
+      const newPin = document.getElementById('newPinInput').value;
+    
+      if (!pin) {
+        showToast('Masukkan PIN lama untuk konfirmasi', 'error');
+        return;
+      }
+    
+      try {
+        const res = await fetch(`/${calendarName}/update-pin`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ pin, newPin })
+        });
+        const data = await res.json();
+        if (res.ok) {
+          showToast(data.message, 'success');
+          document.getElementById('settingsPin').value = '';
+          document.getElementById('newPinInput').value = '';
+        } else {
+          showToast(data.message || 'Gagal update PIN', 'error');
+        }
+      } catch (err) {
+        showToast('Terjadi kesalahan sistem', 'error');
+      }
+    });
+
+        // ===== TOGGLE SIDEBAR UPCOMING EVENTS (MOBILE) =====
+    function toggleUpcomingSidebar() {
+      const sidebar = document.getElementById('upcomingEventsSidebar');
+      const overlay = document.getElementById('upcomingSidebarOverlay');
+      
+      if (sidebar.classList.contains('-translate-x-full')) {
+        // Buka sidebar
+        sidebar.classList.remove('-translate-x-full');
+        overlay.classList.remove('hidden');
+      } else {
+        // Tutup sidebar
+        sidebar.classList.add('-translate-x-full');
+        overlay.classList.add('hidden');
+      }
+    }
+    
+    function closeUpcomingSidebar() {
+      const sidebar = document.getElementById('upcomingEventsSidebar');
+      const overlay = document.getElementById('upcomingSidebarOverlay');
+      
+      sidebar.classList.add('-translate-x-full');
+      overlay.classList.add('hidden');
+    }
+
+
+  
+    
+    </script>
+        <script>
+    // Ganti bagian PIN handlers dengan ini (cari section "===== PIN MANAGEMENT")
+    
+    // ===== PIN MANAGEMENT (DIPERBAIKI v2) =====
+    let currentPinMode = null;
+    let hasPinEnabled = false;
+    
+    // Fungsi untuk check PIN status
+    
+    async function checkPinStatus() {
+      try {
+        const res = await fetch(`/${calendarName}/settings`);
+        const data = await res.json();
+        
+        hasPinEnabled = !!data.has_pin;
+    
+        const statusText = document.getElementById('pinStatusText');
+        const btnChangePin = document.getElementById('btnChangePin');
+        const btnDisablePin = document.getElementById('btnDisablePin');
+    
+        if (!statusText || !btnChangePin || !btnDisablePin) {
+          return;
+        }
+    
+        if (hasPinEnabled) {
+          statusText.innerHTML = '<i class="fas fa-check-circle mr-2"></i>PIN Aktif';
+          statusText.className = 'text-sm font-bold text-green-600';
+          
+          // ✅ PIN aktif: Tampilkan tombol Ubah dan Nonaktifkan
+          btnChangePin.innerHTML = '<i class="fas fa-key"></i> Ubah PIN';
+          btnChangePin.classList.remove('hidden');
+          btnDisablePin.innerHTML = '<i class="fas fa-power-off"></i> Nonaktifkan';
+          btnDisablePin.classList.remove('hidden');
+        } else {
+          statusText.innerHTML = '<i class="fas fa-circle-xmark mr-2"></i>PIN Nonaktif';
+          statusText.className = 'text-sm font-bold text-red-600';
+          
+          // ✅ PIN nonaktif: Tampilkan tombol Aktifkan saja
+          btnChangePin.innerHTML = '<i class="fas fa-lock"></i> Aktifkan PIN';
+          btnChangePin.classList.remove('hidden');
+          btnDisablePin.classList.add('hidden'); // Sembunyikan tombol Nonaktifkan
+        }
+      } catch (err) {
+        console.error('Error checking PIN status:', err);
+      }
+    }
+    
+    // ✅ SETUP EVENT LISTENERS - LANGSUNG TANPA CLONE
+    function setupPinEventListeners() {
+      const btnChangePin = document.getElementById('btnChangePin');
+      const btnDisablePin = document.getElementById('btnDisablePin');
+      const btnCancelPin = document.getElementById('btnCancelPin');
+      const btnSavePin = document.getElementById('btnSavePin');
+    
+      if (btnChangePin) {
+        btnChangePin.onclick = null; // Hapus old handler
+        btnChangePin.addEventListener('click', handleChangePinClick);
+      }
+    
+      if (btnDisablePin) {
+        btnDisablePin.onclick = null;
+        btnDisablePin.addEventListener('click', handleDisablePinClick);
+      }
+    
+      if (btnCancelPin) {
+        btnCancelPin.onclick = null;
+        btnCancelPin.addEventListener('click', closePinInputSection);
+      }
+    
+      if (btnSavePin) {
+        btnSavePin.onclick = null;
+        btnSavePin.addEventListener('click', savePinChanges);
+      }
+    
+      console.log('✅ PIN Event Listeners Ready');
+    }
+    
+    // Handler functions
+    function handleChangePinClick() {
+      console.log('🔄 Change PIN clicked, hasPinEnabled:', hasPinEnabled);
+      if (hasPinEnabled) {
+        openChangePinForm();
+      } else {
+        openEnablePinForm();
+      }
+    }
+    
+    function handleDisablePinClick() {
+      console.log('❌ Disable PIN clicked');
+      openDisablePinConfirm();
+    }
+    
+    function openChangePinForm() {
+      currentPinMode = 'change';
+      document.getElementById('pinInputSection').classList.remove('hidden');
+      document.querySelector('#pinInputSection > div:first-child').style.display = 'block';
+      document.getElementById('currentPinInput').disabled = false;
+      document.getElementById('currentPinInput').value = '';
+      document.getElementById('newPinInput').value = '';
+      document.getElementById('confirmNewPinInput').value = '';
+      document.getElementById('currentPinInput').focus();
+      clearPinMessages();
+    }
+    
+    function openEnablePinForm() {
+      currentPinMode = 'enable';
+      document.getElementById('pinInputSection').classList.remove('hidden');
+      document.querySelector('#pinInputSection > div:first-child').style.display = 'none';
+      document.getElementById('currentPinInput').disabled = true;
+      document.getElementById('currentPinInput').value = '';
+      document.getElementById('newPinInput').value = '';
+      document.getElementById('confirmNewPinInput').value = '';
+      document.getElementById('newPinInput').focus();
+      clearPinMessages();
+    }
+    
+    function openDisablePinConfirm() {
+      const currentPin = prompt('Masukkan PIN untuk menonaktifkan:', '');
+      if (currentPin === null) return;
+    
+      if (!currentPin || currentPin.length === 0) {
+        showToast('PIN tidak boleh kosong', 'error');
+        return;
+      }
+    
+      verifyPinBeforeDisable(currentPin);
+    }
+    
+    async function verifyPinBeforeDisable(pin) {
+      try {
+        const res = await fetch(`/${calendarName}/verify-pin`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ pin })
+        });
+    
+        if (res.ok) {
+          if (confirm('Anda yakin ingin menonaktifkan PIN? Settings akan menjadi public.')) {
+            disablePinRequest(pin);
+          }
+        } else {
+          showToast('PIN salah, silakan coba lagi', 'error');
+        }
+      } catch (err) {
+        showToast('Terjadi kesalahan sistem', 'error');
+        console.error(err);
+      }
+    }
+    
+    async function disablePinRequest(pin) {
+      try {
+        const res = await fetch(`/${calendarName}/update-pin`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ pin, newPin: '' })
+        });
+    
+        const data = await res.json();
+        if (res.ok) {
+          showToast('PIN berhasil dinonaktifkan', 'success');
+          hasPinEnabled = false;
+          checkPinStatus();
+          closePinInputSection();
+        } else {
+          showToast(data.message || 'PIN salah', 'error');
+        }
+      } catch (err) {
+        showToast('Terjadi kesalahan sistem', 'error');
+        console.error(err);
+      }
+    }
+    
+    function closePinInputSection() {
+      document.getElementById('pinInputSection').classList.add('hidden');
+      document.getElementById('currentPinInput').value = '';
+      document.getElementById('newPinInput').value = '';
+      document.getElementById('confirmNewPinInput').value = '';
+      clearPinMessages();
+      currentPinMode = null;
+    }
+    
+    function clearPinMessages() {
+      document.getElementById('pinErrorMessage').classList.add('hidden');
+      document.getElementById('pinSuccessMessage').classList.add('hidden');
+    }
+    
+    async function savePinChanges() {
+      const currentPin = document.getElementById('currentPinInput').value;
+      const newPin = document.getElementById('newPinInput').value;
+      const confirmPin = document.getElementById('confirmNewPinInput').value;
+      const errorDiv = document.getElementById('pinErrorMessage');
+      const errorText = document.querySelector('#pinErrorMessage span');
+    
+      if (!newPin || newPin.length === 0 || newPin.length > 6) {
+        errorDiv.classList.remove('hidden');
+        errorText.textContent = 'PIN baru harus 1-6 karakter (angka atau huruf)';
+        return;
+      }
+    
+      if (newPin !== confirmPin) {
+        errorDiv.classList.remove('hidden');
+        errorText.textContent = 'Konfirmasi PIN tidak sesuai';
+        return;
+      }
+    
+      if (currentPinMode === 'change' && (!currentPin || currentPin.length === 0)) {
+        errorDiv.classList.remove('hidden');
+        errorText.textContent = 'PIN saat ini harus diisi';
+        return;
+      }
+    
+      const submitBtn = document.getElementById('btnSavePin');
+      const originalText = submitBtn.innerHTML;
+      submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Menyimpan...';
+      submitBtn.disabled = true;
+    
+      try {
+        const res = await fetch(`/${calendarName}/update-pin`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            pin: currentPin || '',
+            newPin: newPin
+          })
+        });
+    
+        const data = await res.json();
+    
+        if (res.ok) {
+          clearPinMessages();
+          const message = currentPinMode === 'enable' 
+            ? 'PIN berhasil diaktifkan' 
+            : 'PIN berhasil diubah';
+          
+          showToast(message, 'success');
+          hasPinEnabled = true;
+          checkPinStatus();
+          closePinInputSection();
+        } else {
+          errorDiv.classList.remove('hidden');
+          errorText.textContent = data.message || 'Gagal mengubah PIN';
+        }
+      } catch (err) {
+        errorDiv.classList.remove('hidden');
+        errorText.textContent = 'Terjadi kesalahan sistem';
+        console.error(err);
+      } finally {
+        submitBtn.innerHTML = originalText;
+        submitBtn.disabled = false;
+      }
+    }
+    
+    // Input validation
+    document.addEventListener('input', function(e) {
+      if (e.target.id === 'currentPinInput' || 
+          e.target.id === 'newPinInput' || 
+          e.target.id === 'confirmNewPinInput') {
+        e.target.value = e.target.value.replace(/[^0-9a-zA-Z]/g, '').slice(0, 6);
+      }
+    });
+    
+    // ✅ PERBAIKI: Trigger setup saat settings modal dibuka
+    window.openSettingsModal = async function() {
+      const settingsModal = document.getElementById('settingsModal');
+      settingsModal.classList.remove('hidden');
+      
+      // Setup PIN listeners
+      setTimeout(() => {
+        checkPinStatus();
+        setupPinEventListeners();
+      }, 100);
+    };
+
+    
+
+    </script>
+            <script src="/js/client-script.js"></script>
+  </body>
+</html>

@@ -1,0 +1,683 @@
+<!DOCTYPE html>
+<html lang="id">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>AgendaCerdas - Kalender App</title>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+
+    <style>
+      * {
+        font-family: "Plus Jakarta Sans", sans-serif;
+      }
+
+      .toastify {
+        position: fixed !important;
+        top: 24px !important;
+        left: 50% !important;
+        transform: translateX(-50%) !important;
+        z-index: 9999 !important;
+        margin: 0 !important;
+      }
+
+      .btn-smooth {
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      }
+
+      .btn-smooth:hover {
+        transform: translateY(-2px);
+      }
+
+      .btn-smooth:active {
+        transform: translateY(0);
+      }
+
+      .calendar-card {
+        transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        position: relative;
+        overflow: hidden;
+      }
+
+      .calendar-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 4px;
+        background: linear-gradient(90deg, #60a5fa, #93c5fd);
+        transform: scaleX(0);
+        transition: transform 0.4s ease;
+      }
+
+      .calendar-card:hover::before {
+        transform: scaleX(1);
+      }
+
+      .calendar-card:hover {
+        transform: translateY(-8px);
+        box-shadow: 0 20px 40px rgba(96, 165, 250, 0.15);
+      }
+
+      .floating-animation {
+        animation: floating 3s ease-in-out infinite;
+      }
+
+      @keyframes floating {
+        0%, 100% { transform: translateY(0px); }
+        50% { transform: translateY(-10px); }
+      }
+
+      .scale-on-hover {
+        transition: transform 0.3s ease;
+      }
+
+      .scale-on-hover:hover {
+        transform: scale(1.05);
+      }
+
+      .modal-backdrop {
+        backdrop-filter: blur(8px);
+      }
+
+      .modal-content {
+      }
+
+      .stat-card {
+        background: linear-gradient(135deg, #60a5fa 0%, #3b82f6 100%);
+      }
+
+      .icon-bounce:hover {
+        animation: bounce 0.6s;
+      }
+
+      @keyframes bounce {
+        0%, 100% { transform: translateY(0); }
+        50% { transform: translateY(-8px); }
+      }
+
+      .gradient-border {
+        position: relative;
+        background: white;
+        border-radius: 1rem;
+        padding: 2px;
+      }
+
+      .gradient-border::before {
+        content: '';
+        position: absolute;
+        inset: 0;
+        border-radius: 1rem;
+        padding: 2px;
+        background: linear-gradient(135deg, #60a5fa, #93c5fd);
+        -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+        -webkit-mask-composite: xor;
+        mask-composite: exclude;
+      }
+    </style>
+  </head>
+  <body class="bg-gradient-to-br from-blue-50 via-white to-blue-50 text-gray-800 min-h-screen">
+    <!-- HEADER -->
+    <header class="bg-white/80 backdrop-blur-lg border-b border-blue-100 sticky top-0 z-50 shadow-sm">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
+        <!-- Logo -->
+        <div class="flex items-center gap-4">
+          <div class="bg-blue-400 text-white p-3 rounded-2xl shadow-lg shadow-blue-400/30 icon-bounce">
+            <i class="fas fa-calendar-days text-2xl"></i>
+          </div>
+          <div>
+            <h1 class="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-500 to-blue-300">
+              AgendaCerdas
+            </h1>
+            <p class="text-sm text-blue-400 font-semibold tracking-wide">
+              Kelola Waktu Anda
+            </p>
+          </div>
+        </div>
+
+        <!-- Actions -->
+        <div class="flex items-center gap-3">
+          <button
+            onclick="openCreateCalendarModal()"
+            class="bg-blue-400 hover:bg-blue-500 text-white px-6 py-3 rounded-xl text-sm font-bold transition btn-smooth flex items-center gap-3 shadow-lg shadow-blue-400/30"
+          >
+            <i class="fas fa-plus-circle text-lg"></i>
+            <span class="hidden sm:inline">Buat Kalender Baru</span>
+            <span class="sm:hidden">Buat</span>
+          </button>
+        </div>
+      </div>
+    </header>
+
+    <!-- MAIN CONTENT -->
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+      <!-- Hero Section -->
+      <div class="mb-12 text-center">
+        <div class="inline-block mb-4">
+          <div class="bg-blue-100 text-blue-400 px-4 py-2 rounded-full text-sm font-semibold inline-flex items-center gap-2">
+            <i class="fas fa-sparkles"></i>
+            <span>Manajemen Kalender Modern</span>
+          </div>
+        </div>
+        <h2 class="text-4xl md:text-5xl font-bold text-gray-900 mb-4">
+          Daftar Kalender Anda
+        </h2>
+        <p class="text-gray-600 text-lg max-w-2xl mx-auto">
+          Kelola semua kalender Anda dalam satu tempat. Buat, edit, dan hapus kalender dengan mudah.
+        </p>
+      </div>
+
+      <!-- Search and Filter Section -->
+      <div class="mb-8 flex flex-col sm:flex-row gap-4 items-center justify-center">
+        <div class="relative flex-1 max-w-md">
+          <i class="fas fa-search absolute left-4 top-1/2 transform -translate-y-1/2 text-blue-400"></i>
+          <input
+            type="text"
+            id="searchInput"
+            placeholder="Cari kalender..."
+            class="w-full pl-12 pr-4 py-3 rounded-xl border-2 border-gray-200 focus:border-blue-400 focus:outline-none focus:ring-4 focus:ring-blue-100 transition bg-white font-medium"
+          />
+        </div>
+        <div class="flex items-center gap-2">
+          <select
+            id="sortSelect"
+            class="px-4 py-3 rounded-xl border-2 border-gray-200 focus:border-blue-400 focus:outline-none focus:ring-4 focus:ring-blue-100 transition bg-white font-medium"
+          >
+            <option value="newest">Terbaru Dibuat</option>
+            <option value="oldest">Terlama Dibuat</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Calendar Grid -->
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6" id="calendarGrid">
+        <!-- Loading State -->
+        <div class="col-span-full text-center py-16">
+          <div class="inline-block">
+            <div class="bg-blue-100 p-6 rounded-full mb-6 floating-animation">
+              <i class="fas fa-spinner fa-spin text-5xl text-blue-400"></i>
+            </div>
+            <p class="text-gray-600 font-semibold text-lg">Memuat daftar kalender...</p>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-white border-t border-blue-100 mt-20">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div class="text-center">
+          <p class="text-gray-600 font-medium">
+Dibuat oleh Langen Dimas Pramudya (SMKN 40 JAKARTA)
+          </p>
+          <p class="text-gray-400 text-sm mt-2">© 2025 AgendaCerdas. All rights reserved.</p>
+        </div>
+      </div>
+    </footer>
+
+    <!-- ========== MODAL: CREATE CALENDAR ========== -->
+    <div
+      id="createCalendarModal"
+      class="fixed inset-0 z-50 hidden modal-backdrop"
+      role="dialog"
+      aria-modal="true"
+    >
+      <div class="fixed inset-0 bg-gray-900/50"></div>
+      <div class="fixed inset-0 z-10 overflow-y-auto flex items-center justify-center p-4">
+        <div class="modal-content relative transform overflow-hidden rounded-3xl bg-white text-left shadow-2xl w-full max-w-lg">
+          <!-- Header -->
+          <div class="bg-gradient-to-r from-blue-400 to-blue-500 px-8 py-6">
+            <div class="flex justify-between items-center">
+              <div>
+                <h3 class="text-3xl font-bold text-white flex items-center gap-3">
+                  <i class="fas fa-plus-circle"></i> Buat Kalender Baru
+                </h3>
+                <p class="text-blue-100 text-sm mt-2">Mulai kelola waktu Anda dengan lebih baik</p>
+              </div>
+              <button
+                onclick="closeCreateCalendarModal()"
+                class="text-blue-100 hover:text-white hover:bg-white/20 p-2 rounded-lg transition"
+              >
+                <i class="fas fa-times text-2xl"></i>
+              </button>
+            </div>
+          </div>
+
+          <!-- Form -->
+          <form id="createCalendarForm" class="px-8 py-8 space-y-6">
+            <!-- Nama Kalender -->
+            <div>
+              <label class="block text-sm font-bold text-gray-700 mb-3 flex items-center gap-2">
+                <i class="fas fa-calendar text-blue-400"></i>
+                Nama Kalender
+                <span class="text-red-500">*</span>
+              </label>
+              <input
+                type="text"
+                name="name"
+                id="calendarNameInput"
+                class="w-full rounded-xl border-2 border-gray-200 focus:border-blue-400 focus:outline-none focus:ring-4 focus:ring-blue-100 p-4 transition bg-white font-medium"
+                placeholder="Contoh: Kalender-Dimas"
+                required
+              />
+              <p class="text-xs text-gray-500 mt-2 ml-1">
+                <i class="fas fa-info-circle text-blue-300"></i> Gunakan nama yang mudah diingat (tanpa spasi)
+              </p>
+            </div>
+
+            <!-- PIN (Opsional) -->
+            <div>
+              <label class="block text-sm font-bold text-gray-700 mb-3 flex items-center gap-2">
+                <i class="fas fa-lock text-blue-400"></i>
+                PIN Keamanan
+                <span class="text-gray-400 text-xs font-normal">(Opsional)</span>
+              </label>
+              <input
+                type="password"
+                name="pin"
+                maxlength="6"
+                class="w-full rounded-xl border-2 border-gray-200 focus:border-blue-400 focus:outline-none focus:ring-4 focus:ring-blue-100 p-4 transition bg-white font-medium"
+                placeholder="Masukkan PIN untuk melindungi settings"
+              />
+              <div class="bg-blue-50 border border-blue-200 rounded-lg p-4 mt-3">
+                <p class="text-xs text-blue-700 flex items-start gap-2">
+                  <i class="fas fa-shield-halved text-blue-400 mt-0.5"></i>
+                  <span>PIN akan di-hash untuk keamanan. Maksimal 6 karakter. Jika kosong, settings akan bersifat publik.</span>
+                </p>
+              </div>
+            </div>
+          </form>
+
+          <!-- Buttons -->
+          <div class="flex gap-4 px-8 pb-8">
+            <button
+              type="button"
+              onclick="closeCreateCalendarModal()"
+              class="flex-1 bg-gray-100 hover:bg-gray-200 text-gray-700 py-4 px-6 rounded-xl font-bold transition btn-smooth flex items-center justify-center gap-2"
+            >
+              <i class="fas fa-times"></i> Batal
+            </button>
+            <button
+              type="submit"
+              form="createCalendarForm"
+              class="flex-1 bg-blue-400 hover:bg-blue-500 text-white py-4 px-6 rounded-xl font-bold shadow-lg shadow-blue-400/30 transition btn-smooth flex items-center justify-center gap-2"
+            >
+              <i class="fas fa-check-circle"></i> Buat Kalender
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ========== MODAL: DELETE CALENDAR WARNING ========== -->
+    <div
+      id="deleteCalendarModal"
+      class="fixed inset-0 z-50 hidden modal-backdrop"
+      role="dialog"
+      aria-modal="true"
+    >
+      <div class="fixed inset-0 bg-gray-900/50"></div>
+      <div class="fixed inset-0 z-10 overflow-y-auto flex items-center justify-center p-4">
+        <div class="modal-content bg-white rounded-3xl shadow-2xl max-w-md w-full">
+          <!-- Header -->
+          <div class="bg-gradient-to-r from-red-500 to-red-600 px-8 py-6">
+            <div class="flex justify-between items-center">
+              <h3 class="text-3xl font-bold text-white flex items-center gap-3">
+                <i class="fas fa-exclamation-triangle"></i> Hapus Kalender
+              </h3>
+              <button
+                onclick="closeDeleteCalendarModal()"
+                class="text-red-100 hover:text-white hover:bg-white/20 p-2 rounded-lg transition"
+              >
+                <i class="fas fa-times text-2xl"></i>
+              </button>
+            </div>
+          </div>
+
+          <!-- Content -->
+          <div class="p-8 space-y-5">
+            <div class="text-center">
+              <div class="bg-red-100 w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-4">
+                <i class="fas fa-trash-alt text-4xl text-red-500"></i>
+              </div>
+              <p class="text-gray-700 font-semibold text-lg">
+                Hapus kalender 
+                <span id="deleteCalendarName" class="text-red-600 font-bold block mt-1"></span>?
+              </p>
+            </div>
+            
+            <div class="bg-red-50 border-2 border-red-200 rounded-xl p-5">
+              <p class="text-sm text-red-700 font-bold mb-3 flex items-center gap-2">
+                <i class="fas fa-exclamation-circle text-lg"></i> Peringatan Penting:
+              </p>
+              <ul class="text-sm text-red-600 space-y-2 ml-6">
+                <li class="flex items-center gap-2">
+                  <i class="fas fa-circle text-xs"></i>
+                  <span>Semua event akan dihapus permanen</span>
+                </li>
+                <li class="flex items-center gap-2">
+                  <i class="fas fa-circle text-xs"></i>
+                  <span>Semua ruangan akan dihapus permanen</span>
+                </li>
+                <li class="flex items-center gap-2">
+                  <i class="fas fa-circle text-xs"></i>
+                  <span>Semua pengingat akan dihapus permanen</span>
+                </li>
+                <li class="flex items-center gap-2">
+                  <i class="fas fa-circle text-xs"></i>
+                  <span class="font-bold">Tindakan ini tidak dapat dibatalkan</span>
+                </li>
+              </ul>
+            </div>
+
+            <div>
+              <p class="text-sm text-gray-600 font-semibold mb-3 flex items-center gap-2">
+                <i class="fas fa-keyboard text-blue-400"></i>
+                Ketik nama kalender untuk konfirmasi:
+              </p>
+              <input
+                type="text"
+                id="deleteConfirmationInput"
+                class="w-full rounded-xl border-2 border-gray-300 focus:border-red-500 focus:outline-none focus:ring-4 focus:ring-red-100 p-4 transition bg-white font-medium"
+                placeholder="Ketik nama kalender..."
+              />
+            </div>
+          </div>
+
+          <!-- Buttons -->
+          <div class="flex gap-4 px-8 pb-8">
+            <button
+              type="button"
+              onclick="closeDeleteCalendarModal()"
+              class="flex-1 bg-gray-100 hover:bg-gray-200 text-gray-700 py-4 px-6 rounded-xl font-bold transition btn-smooth flex items-center justify-center gap-2"
+            >
+              <i class="fas fa-times"></i> Batal
+            </button>
+            <button
+              type="button"
+              id="confirmDeleteBtn"
+              onclick="confirmDeleteCalendar()"
+              class="flex-1 bg-red-500 hover:bg-red-600 text-white py-4 px-6 rounded-xl font-bold shadow-lg shadow-red-500/30 transition btn-smooth flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed disabled:shadow-none"
+              disabled
+            >
+              <i class="fas fa-trash-alt"></i> Hapus Kalender
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
+    <script>
+      let allCalendars = []; // Store all calendars data
+
+      // Function to load calendar list
+      async function loadCalendars() {
+        try {
+          const response = await fetch('/api/calendars');
+          const calendars = await response.json();
+          allCalendars = calendars; // Store data
+          renderCalendars(calendars);
+        } catch (error) {
+          console.error('Error loading calendars:', error);
+          document.getElementById('calendarGrid').innerHTML = `
+            <div class="col-span-full text-center py-16">
+              <div class="inline-block">
+                <div class="bg-red-100 p-6 rounded-full mb-6">
+                  <i class="fas fa-exclamation-triangle text-5xl text-red-500"></i>
+                </div>
+                <h3 class="text-xl font-bold text-gray-900 mb-2">Gagal Memuat Data</h3>
+                <p class="text-gray-600 mb-6">Terjadi kesalahan saat memuat daftar kalender.</p>
+                <button onclick="loadCalendars()" class="bg-blue-400 hover:bg-blue-500 text-white px-6 py-3 rounded-xl font-bold transition btn-smooth shadow-lg">
+                  <i class="fas fa-refresh mr-2"></i> Coba Lagi
+                </button>
+              </div>
+            </div>
+          `;
+        }
+      }
+
+      // Function to render calendars
+      function renderCalendars(calendars) {
+        const grid = document.getElementById('calendarGrid');
+        grid.innerHTML = '';
+
+        if (calendars.length === 0) {
+          grid.innerHTML = `
+            <div class="col-span-full text-center py-20">
+              <div class="inline-block">
+                <div class="bg-blue-100 p-8 rounded-full mb-6 floating-animation">
+                  <i class="fas fa-calendar-times text-6xl text-blue-300"></i>
+                </div>
+                <h3 class="text-2xl font-bold text-gray-900 mb-3">Tidak Ada Kalender Ditemukan</h3>
+                <p class="text-gray-600 mb-8 max-w-md mx-auto">
+                  Coba ubah kata kunci pencarian atau filter.
+                </p>
+                <button onclick="resetFilters()" class="bg-blue-400 hover:bg-blue-500 text-white px-8 py-4 rounded-xl font-bold transition btn-smooth shadow-lg shadow-blue-400/30 inline-flex items-center gap-3">
+                  <i class="fas fa-undo"></i> Reset Filter
+                </button>
+              </div>
+            </div>
+          `;
+          return;
+        }
+
+        calendars.forEach(calendar => {
+          const card = document.createElement('div');
+          card.className = 'calendar-card bg-white p-6 rounded-2xl shadow-lg border-2 border-gray-100 hover:border-blue-200';
+          card.innerHTML = `
+            <div class="flex items-start justify-between mb-5">
+              <div class="bg-gradient-to-br from-blue-400 to-blue-500 text-white p-4 rounded-2xl shadow-lg shadow-blue-400/30 scale-on-hover">
+                <i class="fas fa-calendar-days text-2xl"></i>
+              </div>
+              <button
+                onclick="openDeleteCalendarModal('${calendar.name}')"
+                class="text-gray-400 hover:text-red-500 hover:bg-red-50 p-3 rounded-xl transition scale-on-hover"
+                title="Hapus kalender"
+              >
+                <i class="fas fa-trash-alt text-lg"></i>
+              </button>
+            </div>
+            
+            <h3 class="text-xl font-bold text-gray-900 mb-2 truncate" title="${calendar.name}">${calendar.name}</h3>
+            
+            <div class="flex items-center gap-2 mb-5">
+              <div class="bg-blue-100 text-blue-400 px-3 py-1.5 rounded-full text-xs font-bold flex items-center gap-1.5">
+                <i class="fas fa-clock"></i>
+                <span>${calendar.created_at ? new Date(calendar.created_at).toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' }) : 'Baru'}</span>
+              </div>
+            </div>
+
+            <a href="/${calendar.name}" class="w-full bg-blue-400 hover:bg-blue-500 text-white py-3.5 px-4 rounded-xl font-bold transition btn-smooth inline-flex items-center justify-center gap-2 shadow-md hover:shadow-lg">
+              <span>Buka Kalender</span>
+              <i class="fas fa-arrow-right"></i>
+            </a>
+          `;
+          grid.appendChild(card);
+        });
+      }
+
+      // Function to filter and sort calendars
+      function filterAndSortCalendars() {
+        const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+        const sortOrder = document.getElementById('sortSelect').value;
+
+        let filteredCalendars = allCalendars.filter(calendar =>
+          calendar.name.toLowerCase().includes(searchTerm)
+        );
+
+        if (sortOrder === 'newest') {
+          filteredCalendars.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+        } else if (sortOrder === 'oldest') {
+          filteredCalendars.sort((a, b) => new Date(a.created_at) - new Date(b.created_at));
+        }
+
+        renderCalendars(filteredCalendars);
+      }
+
+      // Function to reset filters
+      function resetFilters() {
+        document.getElementById('searchInput').value = '';
+        document.getElementById('sortSelect').value = 'newest';
+        renderCalendars(allCalendars);
+      }
+
+      // Event listeners
+      document.getElementById('searchInput').addEventListener('input', filterAndSortCalendars);
+      document.getElementById('sortSelect').addEventListener('change', filterAndSortCalendars);
+
+      function showToast(message, type = 'info') {
+        let bgColor, icon, textColor, borderColor;
+
+        if (type === 'error') {
+          bgColor = '#fee2e2';
+          icon = 'fa-circle-xmark';
+          borderColor = '#fca5a5';
+          textColor = '#991b1b';
+        } else if (type === 'success') {
+          bgColor = '#dcfce7';
+          icon = 'fa-circle-check';
+          borderColor = '#86efac';
+          textColor = '#15803d';
+        } else {
+          bgColor = '#dbeafe';
+          icon = 'fa-circle-info';
+          borderColor = '#93c5fd';
+          textColor = '#1e40af';
+        }
+
+        Toastify({
+          text: `<div style="display: flex; align-items: center; gap: 14px; width: 100%;">
+            <i class="fas ${icon}" style="font-size: 22px; flex-shrink: 0; color: ${textColor};"></i>
+            <span style="font-weight: 600; font-size: 15px; flex: 1; color: ${textColor};">${message}</span>
+            <button onclick="this.closest('.toastify').remove();" style="background: none; border: none; color: ${textColor}; cursor: pointer; font-size: 20px; padding: 0; margin: 0; display: flex; align-items: center; opacity: 0.7; transition: opacity 0.2s;">
+              <i class="fas fa-times"></i>
+            </button>
+          </div>`,
+          duration: 4000,
+          close: false,
+          gravity: 'top',
+          position: 'center',
+          escapeMarkup: false,
+          style: {
+            background: bgColor,
+            border: `2px solid ${borderColor}`,
+            borderRadius: '16px',
+            padding: '18px 24px',
+            boxShadow: '0 10px 30px rgba(0, 0, 0, 0.15)',
+            color: textColor,
+            minWidth: '380px',
+            maxWidth: '550px',
+          },
+          stopOnFocus: true,
+        }).showToast();
+      }
+
+      // Modal functions
+      function openCreateCalendarModal() {
+        document.getElementById('createCalendarModal').classList.remove('hidden');
+      }
+
+      function closeCreateCalendarModal() {
+        document.getElementById('createCalendarModal').classList.add('hidden');
+      }
+
+      // Form submission
+      document.getElementById('createCalendarForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const formData = new FormData(e.target);
+        const data = Object.fromEntries(formData);
+      
+        try {
+          const response = await fetch('/create-calendar', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(data)
+          });
+      
+          if (response.ok) {
+            showToast("Kalender berhasil dibuat!", "success");
+            closeCreateCalendarModal();
+            loadCalendars();
+            e.target.reset();
+          } else {
+            const error = await response.json();
+            showToast(error.error || "Gagal membuat kalender.", "error");
+          }
+        } catch (error) {
+          console.error('Error creating calendar:', error);
+          showToast("Terjadi kesalahan saat membuat kalender.", "error");
+        }
+      });
+
+            // Prevent spaces in calendar name
+      document.getElementById('calendarNameInput').addEventListener('input', (e) => {
+        if (e.target.value.includes(' ')) {
+          e.target.value = e.target.value.replace(/\s+/g, '');
+          showToast('Nama kalender tidak boleh mengandung spasi', 'info');
+        }
+      });
+
+      // Delete Calendar Functions
+      let calendarToDelete = null;
+      
+      function openDeleteCalendarModal(calendarName) {
+        calendarToDelete = calendarName;
+        document.getElementById('deleteCalendarName').textContent = calendarName;
+        document.getElementById('deleteConfirmationInput').value = '';
+        document.getElementById('confirmDeleteBtn').disabled = true;
+        document.getElementById('deleteCalendarModal').classList.remove('hidden');
+      }
+      
+      function closeDeleteCalendarModal() {
+        calendarToDelete = null;
+        document.getElementById('deleteCalendarModal').classList.add('hidden');
+        document.getElementById('deleteConfirmationInput').value = '';
+        document.getElementById('confirmDeleteBtn').disabled = true;
+      }
+      
+      // Validasi input konfirmasi
+      document.getElementById('deleteConfirmationInput').addEventListener('input', (e) => {
+        const btn = document.getElementById('confirmDeleteBtn');
+        btn.disabled = e.target.value !== calendarToDelete;
+      });
+      
+      async function confirmDeleteCalendar() {
+        if (!calendarToDelete) return;
+      
+        try {
+          const response = await fetch(`/delete-calendar/${calendarToDelete}`, {
+            method: 'DELETE',
+            headers: { 'Content-Type': 'application/json' }
+          });
+      
+          if (response.ok) {
+            showToast(`Kalender "${calendarToDelete}" berhasil dihapus!`, "success");
+            closeDeleteCalendarModal();
+            loadCalendars();
+          } else {
+            const error = await response.json();
+            showToast(error.error || "Gagal menghapus kalender.", "error");
+          }
+        } catch (error) {
+          console.error('Error deleting calendar:', error);
+          showToast("Terjadi kesalahan saat menghapus kalender.", "error");
+        }
+      }
+
+      // Load calendars on page load
+      document.addEventListener('DOMContentLoaded', loadCalendars);
+    </script>
+  </body>
+</html>

@@ -1,0 +1,1027 @@
+<!DOCTYPE html>
+<html lang="id">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Analytics - <%= calendarName %></title>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+
+    <style>
+      * {
+        font-family: "Inter", sans-serif;
+      }
+      
+      .chart-container {
+        position: relative;
+        height: 350px;
+        margin-bottom: 2rem;
+      }
+      
+      .chart-container-small {
+        position: relative;
+        height: 250px;
+      }
+      
+      .stat-card {
+        transition: all 0.3s ease;
+      }
+      
+      .stat-card:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 12px 24px rgba(0, 0, 0, 0.15);
+      }
+
+      .breadcrumb {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        font-size: 0.875rem;
+      }
+
+      .breadcrumb a {
+        color: #3b82f6;
+        text-decoration: none;
+        transition: color 0.2s;
+      }
+
+      .breadcrumb a:hover {
+        color: #1d4ed8;
+        text-decoration: underline;
+      }
+
+      .breadcrumb-separator {
+        color: #d1d5db;
+      }
+
+      .tab-button {
+        padding: 0.5rem 1rem;
+        border-radius: 0.5rem;
+        border: 2px solid transparent;
+        cursor: pointer;
+        transition: all 0.2s;
+        font-weight: 500;
+      }
+
+      .tab-button.active {
+        background-color: #3b82f6;
+        color: white;
+        border-color: #3b82f6;
+      }
+
+      .tab-button:not(.active) {
+        background-color: #f3f4f6;
+        color: #374151;
+      }
+
+      .tab-button:hover {
+        background-color: #e5e7eb;
+      }
+
+      .tab-button.active:hover {
+        background-color: #2563eb;
+      }
+
+      .stat-trend {
+        display: flex;
+        align-items: center;
+        gap: 0.25rem;
+        font-size: 0.875rem;
+        margin-top: 0.5rem;
+      }
+
+      .stat-trend.up {
+        color: #10b981;
+      }
+
+      .stat-trend.down {
+        color: #ef4444;
+      }
+              @keyframes spin {
+          from { transform: rotate(0deg); }
+          to { transform: rotate(360deg); }
+        }
+        
+        .animate-spin {
+          animation: spin 1s linear infinite;
+        }
+    </style>
+  </head>
+  <body class="bg-blue-50 text-gray-800 min-h-screen">
+    <!-- HEADER -->
+    <header class="bg-white border-b border-gray-100 shadow-sm">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+        <!-- Logo & Calendar Name -->
+        <div class="flex items-center gap-4">
+          <a href="/<%= calendarName %>" class="flex items-center gap-3 hover:opacity-80 transition">
+            <div class="bg-blue-400 text-white p-2.5 rounded-xl">
+              <i class="fas fa-calendar-days text-xl"></i>
+            </div>
+            <div class="flex flex-col">
+              <h1 class="text-2xl font-bold text-gray-900"><%= calendarName %></h1>
+              <p class="text-xs text-blue-400 font-semibold">AgendaCerdas</p>
+            </div>
+          </a>
+        </div>
+
+        <!-- Navigation & Actions -->
+        <div class="flex items-center gap-3">
+          <a href="/<%= calendarName %>" class="bg-gray-100 hover:bg-gray-200 text-gray-700 p-2.5 rounded-xl transition" title="Kembali ke Kalender">
+            <i class="fas fa-calendar text-lg"></i>
+          </a>
+          <button onclick="window.location.href='/'" class="bg-purple-100 hover:bg-purple-200 text-purple-600 p-2.5 rounded-xl transition" title="Kembali ke List Kalender">
+            <i class="fas fa-list text-lg"></i>
+          </button>
+        </div>
+      </div>
+    </header>
+
+    <!-- BREADCRUMB -->
+    <div class="bg-white border-b border-gray-100 px-4 sm:px-6 lg:px-8">
+      <div class="max-w-7xl mx-auto py-4">
+        <nav class="breadcrumb">
+          <a href="/"><i class="fas fa-home"></i> Home</a>
+          <span class="breadcrumb-separator"><i class="fas fa-chevron-right"></i></span>
+          <a href="/<%= calendarName %>"><%= calendarName %></a>
+          <span class="breadcrumb-separator"><i class="fas fa-chevron-right"></i></span>
+          <span class="text-gray-600 font-semibold">Analytics & Rekapan</span>
+        </nav>
+      </div>
+    </div>
+
+    <!-- MAIN CONTENT -->
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <!-- Page Title & Controls -->
+      <div class="mb-8 flex items-center justify-between flex-wrap gap-4">
+        <div>
+          <h2 class="text-3xl font-bold text-gray-900 flex items-center gap-2 mb-2">
+            <i class="fas fa-chart-bar text-blue-400"></i> Analytics & Rekapan
+          </h2>
+          <p class="text-gray-600">Statistik lengkap dan mendalam untuk kalender <strong><%= calendarName %></strong></p>
+        </div>
+
+        <!-- Filter & Export Controls -->
+        <div class="flex items-center gap-3 flex-wrap">
+          <!-- Period Filter -->
+          <div class="flex items-center gap-2 bg-white rounded-lg p-2 border border-gray-200 shadow-sm">
+            <i class="fas fa-calendar text-blue-400"></i>
+            <select id="periodFilter" class="px-3 py-2 text-sm font-semibold text-gray-700 bg-white border-none rounded cursor-pointer focus:outline-none">
+              <option value="all">All Time</option>
+              <option value="daily">Harian</option>
+              <option value="weekly">Mingguan</option>
+              <option value="monthly">Bulanan</option>
+              <option value="yearly">Tahunan</option>
+            </select>
+          </div>
+
+          <div id="rangeInputs" class="hidden flex items-center gap-2 bg-white rounded-lg p-2 border border-gray-200 shadow-sm flex-wrap">
+            <span class="text-xs font-semibold text-gray-600" id="rangeLabel">Pilih Range:</span>
+            
+            <!-- Date Range Picker -->
+            <div id="dateRangePicker" class="flex items-center gap-2">
+              <input type="date" id="startDate" class="px-3 py-2 text-sm border border-gray-300 rounded focus:outline-none" placeholder="Dari">
+              <span class="text-gray-500 text-sm font-semibold">-</span>
+              <input type="date" id="endDate" class="px-3 py-2 text-sm border border-gray-300 rounded focus:outline-none" placeholder="Sampai">
+            </div>
+          
+            <!-- Week Range Picker -->
+            <div id="weekPicker" class="hidden flex items-center gap-2">
+              <label class="text-xs font-semibold text-gray-600">Minggu:</label>
+              <input type="week" id="startWeek" class="px-3 py-2 text-sm border border-gray-300 rounded focus:outline-none">
+              <span class="text-gray-500 text-sm font-semibold">-</span>
+              <input type="week" id="endWeek" class="px-3 py-2 text-sm border border-gray-300 rounded focus:outline-none">
+            </div>
+          
+            <!-- Month Range Picker -->
+            <div id="monthPicker" class="hidden flex items-center gap-2">
+              <label class="text-xs font-semibold text-gray-600">Bulan:</label>
+              <input type="month" id="startMonth" class="px-3 py-2 text-sm border border-gray-300 rounded focus:outline-none">
+              <span class="text-gray-500 text-sm font-semibold">-</span>
+              <input type="month" id="endMonth" class="px-3 py-2 text-sm border border-gray-300 rounded focus:outline-none">
+            </div>
+          
+            <!-- Year Range Picker -->
+            <div id="yearPicker" class="hidden flex items-center gap-2">
+              <label class="text-xs font-semibold text-gray-600">Tahun:</label>
+              <input type="number" id="startYear" class="px-3 py-2 text-sm border border-gray-300 rounded focus:outline-none w-20" placeholder="2024" min="2000" max="2099">
+              <span class="text-gray-500 text-sm font-semibold">-</span>
+              <input type="number" id="endYear" class="px-3 py-2 text-sm border border-gray-300 rounded focus:outline-none w-20" placeholder="2025" min="2000" max="2099">
+            </div>
+          
+            <button id="applyRange" class="bg-blue-500 hover:bg-blue-600 text-white px-3 py-2 rounded text-sm transition font-semibold">
+              Terapkan
+            </button>
+          </div>
+
+          <!-- Export PDF Button -->
+          <button id="exportPdfBtn" class="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg transition flex items-center gap-2 shadow-sm font-semibold">
+            <i class="fas fa-file-pdf"></i> Export PDF
+          </button>
+
+          <!-- Refresh Button -->
+          <button id="refreshBtn" class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg transition flex items-center gap-2 shadow-sm font-semibold">
+            <i class="fas fa-sync-alt"></i> Refresh
+          </button>
+        </div>
+      </div>
+
+      <!-- STAT CARDS -->
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+        <!-- Total Events -->
+        <div class="stat-card bg-white rounded-xl p-6 border border-gray-100 shadow-sm">
+          <div class="flex items-center justify-between">
+            <div>
+              <p class="text-gray-600 text-sm font-semibold mb-1">Total Event</p>
+              <h3 class="text-3xl font-bold text-gray-900" id="totalEvents">0</h3>
+              <p class="text-xs text-gray-500 mt-2">Event di kalender ini</p>
+            </div>
+            <div class="bg-blue-100 text-blue-600 p-3 rounded-lg">
+              <i class="fas fa-calendar-check text-2xl"></i>
+            </div>
+          </div>
+        </div>
+
+        <!-- Total Rooms -->
+        <div class="stat-card bg-white rounded-xl p-6 border border-gray-100 shadow-sm">
+          <div class="flex items-center justify-between">
+            <div>
+              <p class="text-gray-600 text-sm font-semibold mb-1">Total Ruangan</p>
+              <h3 class="text-3xl font-bold text-gray-900" id="totalRooms">0</h3>
+              <p class="text-xs text-gray-500 mt-2">Ruangan terdaftar</p>
+            </div>
+            <div class="bg-green-100 text-green-600 p-3 rounded-lg">
+              <i class="fas fa-door-open text-2xl"></i>
+            </div>
+          </div>
+        </div>
+
+        <!-- Total Reminders -->
+        <div class="stat-card bg-white rounded-xl p-6 border border-gray-100 shadow-sm">
+          <div class="flex items-center justify-between">
+            <div>
+              <p class="text-gray-600 text-sm font-semibold mb-1">Total Pengingat</p>
+              <h3 class="text-3xl font-bold text-gray-900" id="totalReminders">0</h3>
+              <p class="text-xs text-gray-500 mt-2">Pengingat aktif</p>
+            </div>
+            <div class="bg-purple-100 text-purple-600 p-3 rounded-lg">
+              <i class="fas fa-bell text-2xl"></i>
+            </div>
+          </div>
+        </div>
+
+        <!-- Total Participants -->
+        <div class="stat-card bg-white rounded-xl p-6 border border-gray-100 shadow-sm">
+          <div class="flex items-center justify-between">
+            <div>
+              <p class="text-gray-600 text-sm font-semibold mb-1">Total Peserta</p>
+              <h3 class="text-3xl font-bold text-gray-900" id="totalParticipants">0</h3>
+              <p class="text-xs text-gray-500 mt-2">Dari semua event</p>
+            </div>
+            <div class="bg-orange-100 text-orange-600 p-3 rounded-lg">
+              <i class="fas fa-users text-2xl"></i>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ADVANCED CHARTS SECTION -->
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+        <!-- Chart 1: Event per Ruangan (Pie & Bar Toggle) -->
+        <div class="bg-white rounded-xl p-6 border border-gray-100 shadow-sm">
+          <div class="flex items-center justify-between mb-4">
+            <h3 class="text-lg font-bold text-gray-900 flex items-center gap-2">
+              <i class="fas fa-chart-pie text-blue-400"></i> Event per Ruangan
+            </h3>
+            <div class="flex gap-2">
+              <button class="tab-button active" data-chart-type="room" data-view="pie">
+                <i class="fas fa-circle text-xs"></i> Pie
+              </button>
+              <button class="tab-button" data-chart-type="room" data-view="bar">
+                <i class="fas fa-bars text-xs"></i> Bar
+              </button>
+            </div>
+          </div>
+          <div class="chart-container">
+            <canvas id="eventPerRoomChart"></canvas>
+          </div>
+          <div class="mt-4 p-3 bg-blue-50 rounded-lg text-xs text-gray-600">
+            <strong>Insight:</strong> Ruangan dengan event terbanyak ditampilkan di atas
+          </div>
+        </div>
+
+        <!-- Chart 2: Event per Bulan (Trend Analysis) -->
+        <div class="bg-white rounded-xl p-6 border border-gray-100 shadow-sm">
+          <h3 class="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
+            <i class="fas fa-chart-line text-green-400"></i> Tren Event (12 Bulan)
+          </h3>
+          <div class="chart-container">
+            <canvas id="eventPerMonthChart"></canvas>
+          </div>
+          <div class="mt-4 p-3 bg-green-50 rounded-lg text-xs text-gray-600">
+            <strong>Insight:</strong> <span id="monthTrend">Analisis tren event bulanan...</span>
+          </div>
+        </div>
+
+        <!-- Chart 3: Occupancy Rate -->
+        <div class="bg-white rounded-xl p-6 border border-gray-100 shadow-sm">
+          <h3 class="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
+            <i class="fas fa-percentage text-purple-400"></i> Tingkat Okupansi Ruangan
+          </h3>
+          <div class="chart-container">
+            <canvas id="occupancyRateChart"></canvas>
+          </div>
+          <div class="mt-4 p-3 bg-purple-50 rounded-lg text-xs text-gray-600">
+            <strong>Insight:</strong> Persentase penggunaan kapasitas ruangan
+          </div>
+        </div>
+
+        <!-- Chart 4: Event per Hour (Heatmap-style) -->
+        <div class="bg-white rounded-xl p-6 border border-gray-100 shadow-sm">
+          <h3 class="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
+            <i class="fas fa-clock text-orange-400"></i> Distribusi Event per Jam
+          </h3>
+          <div class="chart-container">
+            <canvas id="eventPerHourChart"></canvas>
+          </div>
+          <div class="mt-4 p-3 bg-orange-50 rounded-lg text-xs text-gray-600">
+            <strong>Insight:</strong> Jam-jam sibuk dengan event terbanyak
+          </div>
+        </div>
+
+        <!-- Chart 5: Event Duration Distribution -->
+        <div class="bg-white rounded-xl p-6 border border-gray-100 shadow-sm">
+          <h3 class="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
+            <i class="fas fa-hourglass-end text-red-400"></i> Durasi Event
+          </h3>
+          <div class="chart-container-small">
+            <canvas id="durationDistributionChart"></canvas>
+          </div>
+          <div class="mt-4 p-3 bg-red-50 rounded-lg text-xs text-gray-600">
+            <strong>Insight:</strong> Distribusi durasi event
+          </div>
+        </div>
+
+        <!-- Chart 6: Event Status (Upcoming vs Passed) -->
+        <div class="bg-white rounded-xl p-6 border border-gray-100 shadow-sm">
+          <h3 class="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
+            <i class="fas fa-check-circle text-cyan-400"></i> Status Event
+          </h3>
+          <div class="chart-container-small">
+            <canvas id="eventStatusChart"></canvas>
+          </div>
+          <div class="mt-4 p-3 bg-cyan-50 rounded-lg text-xs text-gray-600">
+            <strong>Insight:</strong> Event mendatang vs yang sudah berlalu
+          </div>
+        </div>
+      </div>
+
+      <!-- TABLE: DETAIL RUANGAN -->
+      <div class="bg-white rounded-xl p-6 border border-gray-100 shadow-sm mb-8">
+        <h3 class="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
+          <i class="fas fa-table text-blue-400"></i> Detail Penggunaan Ruangan
+        </h3>
+        <div class="overflow-x-auto">
+          <table class="w-full text-sm">
+            <thead class="bg-gray-50">
+              <tr>
+                <th class="px-4 py-3 text-left text-xs font-bold text-gray-700">Ruangan</th>
+                <th class="px-4 py-3 text-left text-xs font-bold text-gray-700">Kapasitas</th>
+                <th class="px-4 py-3 text-left text-xs font-bold text-gray-700">Total Event</th>
+                <th class="px-4 py-3 text-left text-xs font-bold text-gray-700">Peserta Total</th>
+                <th class="px-4 py-3 text-left text-xs font-bold text-gray-700">Rata-rata</th>
+                <th class="px-4 py-3 text-left text-xs font-bold text-gray-700">Utilisasi</th>
+                <th class="px-4 py-3 text-left text-xs font-bold text-gray-700">Status</th>
+              </tr>
+            </thead>
+            <tbody id="roomDetailTable" class="divide-y divide-gray-200">
+              <tr class="text-center py-8">
+                <td colspan="7" class="text-gray-500">
+                  <i class="fas fa-spinner fa-spin mr-2"></i> Memuat data...
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- SUMMARY SECTION -->
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <!-- Peak Hours -->
+        <div class="bg-white rounded-xl p-6 border border-gray-100 shadow-sm">
+          <h3 class="text-lg font-bold text-gray-900 mb-4">
+            <i class="fas fa-fire text-red-400"></i> Jam Puncak
+          </h3>
+          <div id="peakHoursSummary" class="space-y-2">
+            <p class="text-gray-500 text-sm">Memuat...</p>
+          </div>
+        </div>
+
+        <!-- Most Used Rooms -->
+        <div class="bg-white rounded-xl p-6 border border-gray-100 shadow-sm">
+          <h3 class="text-lg font-bold text-gray-900 mb-4">
+            <i class="fas fa-star text-yellow-400"></i> Ruangan Paling Sering Digunakan
+          </h3>
+          <div id="topRoomsSummary" class="space-y-2">
+            <p class="text-gray-500 text-sm">Memuat...</p>
+          </div>
+        </div>
+
+        <!-- Statistics -->
+        <div class="bg-white rounded-xl p-6 border border-gray-100 shadow-sm">
+          <h3 class="text-lg font-bold text-gray-900 mb-4">
+            <i class="fas fa-calculator text-indigo-400"></i> Statistik Umum
+          </h3>
+          <div id="generalStatsSummary" class="space-y-2">
+            <p class="text-gray-500 text-sm">Memuat...</p>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <script>
+      const calendarName = '<%= calendarName %>';
+      let charts = {};
+      let analyticsData = {};
+      let currentRoomViewType = 'pie';
+        let currentPeriod = 'all';
+  let currentStartDate = null;
+  let currentEndDate = null;
+  let currentStartWeek = null;
+  let currentEndWeek = null;
+  let currentStartMonth = null;
+  let currentEndMonth = null;
+  let currentStartYear = null;
+  let currentEndYear = null;
+
+
+      // ✅ PERIOD FILTER EVENT
+      document.getElementById('periodFilter')?.addEventListener('change', function() {
+        currentPeriod = this.value;
+        const rangeInputs = document.getElementById('rangeInputs');
+        document.getElementById('dateRangePicker').classList.add('hidden');
+        document.getElementById('weekPicker').classList.add('hidden');
+        document.getElementById('monthPicker').classList.add('hidden');
+        document.getElementById('yearPicker').classList.add('hidden');
+        if (['daily', 'weekly', 'monthly', 'yearly'].includes(this.value)) {
+          rangeInputs.classList.remove('hidden');
+          document.getElementById('startDate').value = '';
+          document.getElementById('endDate').value = '';
+          document.getElementById('startWeek').value = '';
+          document.getElementById('endWeek').value = '';
+          document.getElementById('startMonth').value = '';
+          document.getElementById('endMonth').value = '';
+          document.getElementById('startYear').value = '';
+          document.getElementById('endYear').value = '';
+          switch(this.value) {
+            case 'daily': document.getElementById('dateRangePicker').classList.remove('hidden'); break;
+            case 'weekly': document.getElementById('weekPicker').classList.remove('hidden'); break;
+            case 'monthly': document.getElementById('monthPicker').classList.remove('hidden'); break;
+            case 'yearly': document.getElementById('yearPicker').classList.remove('hidden'); break;
+          }
+          // ✅ LOAD DENGAN DEFAULT SAAT PILIH PERIOD (TANPA RANGE)
+          loadAnalytics(currentPeriod);
+        } else {
+          rangeInputs.classList.add('hidden');
+          loadAnalytics(currentPeriod);
+        }
+      });
+
+      
+        document.getElementById('applyRange')?.addEventListener('click', function() {
+    let queryParam = '';
+    if (currentPeriod === 'daily') {
+      const startVal = document.getElementById('startDate').value;
+      const endVal = document.getElementById('endDate').value;
+      if (!startVal || !endVal) { alert('Pilih tanggal awal dan akhir'); return; }
+      queryParam = `&startDate=${startVal}&endDate=${endVal}`;
+      currentStartDate = startVal;  // ✅ SIMPAN
+      currentEndDate = endVal;
+    } else if (currentPeriod === 'weekly') {
+      const startWeek = document.getElementById('startWeek').value;
+      const endWeek = document.getElementById('endWeek').value;
+      if (!startWeek || !endWeek) { alert('Pilih minggu awal dan akhir'); return; }
+      queryParam = `&startWeek=${startWeek}&endWeek=${endWeek}`;
+      currentStartWeek = startWeek;  // ✅ SIMPAN RANGE
+      currentEndWeek = endWeek;
+    } else if (currentPeriod === 'monthly') {
+      const startMonth = document.getElementById('startMonth').value;
+      const endMonth = document.getElementById('endMonth').value;
+      if (!startMonth || !endMonth) { alert('Pilih bulan awal dan akhir'); return; }
+      queryParam = `&startMonth=${startMonth}&endMonth=${endMonth}`;
+      currentStartMonth = startMonth;  // ✅ SIMPAN RANGE
+      currentEndMonth = endMonth;
+    } else if (currentPeriod === 'yearly') {
+      const startYear = document.getElementById('startYear').value;
+      const endYear = document.getElementById('endYear').value;
+      if (!startYear || !endYear) { alert('Pilih tahun awal dan akhir'); return; }
+      queryParam = `&startYear=${startYear}&endYear=${endYear}`;
+      currentStartYear = startYear;  // ✅ SIMPAN RANGE
+      currentEndYear = endYear;
+    }
+    loadAnalytics(currentPeriod, queryParam);
+  });
+
+      // ✅ LOAD ANALYTICS (SINGLE FUNCTION - YANG INI YANG DIPAKAI)
+      async function loadAnalytics(period = 'all', queryParams = '') {
+        try {
+          let url = `/${calendarName}/api/analytics?period=${period}${queryParams}`;
+          
+          
+          const response = await fetch(url);
+          if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+          }
+          
+          const data = await response.json();
+          analyticsData = data;
+
+          // Update Stat Cards
+          document.getElementById('totalEvents').textContent = data.totalEvents || 0;
+          document.getElementById('totalRooms').textContent = data.totalRooms || 0;
+          document.getElementById('totalReminders').textContent = data.totalReminders || 0;
+          document.getElementById('totalParticipants').textContent = data.totalParticipants || 0;
+
+          // Render Charts
+          if (data.eventPerRoom && data.eventPerRoom.length > 0) {
+            renderEventPerRoomChart(data.eventPerRoom);
+          }
+          
+          if (data.eventPerMonth && data.eventPerMonth.length > 0) {
+            renderEventPerMonthChart(data.eventPerMonth);
+          }
+          
+          if (data.roomUtility && data.roomUtility.length > 0) {
+            renderOccupancyRateChart(data.roomUtility);
+          }
+          
+          if (data.eventPerHour && data.eventPerHour.length > 0) {
+            renderEventPerHourChart(data.eventPerHour);
+          }
+          
+          renderDurationDistributionChart(data.eventDuration || []);
+          renderEventStatusChart(data.eventStatus || {});
+          
+          if (data.roomDetails && data.roomDetails.length > 0) {
+            renderRoomDetailTable(data.roomDetails);
+          }
+          
+          renderSummaries(data);
+          
+          return Promise.resolve();
+        } catch (error) {
+          console.error('❌ Error loading analytics:', error);
+          alert('Gagal memuat data analytics: ' + error.message);
+          return Promise.reject(error);
+        }
+      }
+
+      // ✅ UPDATE EXPORT PDF
+        document.getElementById('exportPdfBtn')?.addEventListener('click', function() {
+    const fileName = `Analytics_${calendarName}_${currentPeriod}_${Date.now()}.pdf`;
+    let exportUrl = `/${calendarName}/api/analytics/export-pdf?period=${currentPeriod}`;
+    
+    // ✅ TAMBAHKAN RANGE PARAMS
+    if (currentPeriod === 'daily' && currentStartDate && currentEndDate) {
+      exportUrl += `&startDate=${currentStartDate}&endDate=${currentEndDate}`;
+    } else if (currentPeriod === 'weekly' && currentStartWeek && currentEndWeek) {
+      exportUrl += `&startWeek=${currentStartWeek}&endWeek=${currentEndWeek}`;
+    } else if (currentPeriod === 'monthly' && currentStartMonth && currentEndMonth) {
+      exportUrl += `&startMonth=${currentStartMonth}&endMonth=${currentEndMonth}`;
+    } else if (currentPeriod === 'yearly' && currentStartYear && currentEndYear) {
+      exportUrl += `&startYear=${currentStartYear}&endYear=${currentEndYear}`;
+    }
+    
+    const originalText = this.innerHTML;
+    this.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Mengekspor...';
+    this.disabled = true;
+
+    fetch(exportUrl)
+      .then(response => {
+        if (!response.ok) throw new Error('Export gagal');
+        return response.blob();
+      })
+      .then(blob => {
+        const url = window.URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = fileName;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        window.URL.revokeObjectURL(url);
+      })
+      .catch(error => {
+        console.error('❌ Export error:', error);
+        alert('Gagal mengekspor PDF: ' + error.message);
+      })
+      .finally(() => {
+        this.innerHTML = originalText;
+        this.disabled = false;
+      });
+  });
+
+      // ✅ UPDATE REFRESH BUTTON
+        document.getElementById('refreshBtn')?.addEventListener('click', function() {
+    const icon = this.querySelector('i');
+    icon.classList.add('fa-spin');
+    
+    let queryParams = '';
+    if (currentPeriod === 'daily' && currentStartDate && currentEndDate) {
+      queryParams = `&startDate=${currentStartDate}&endDate=${currentEndDate}`;
+    } else if (currentPeriod === 'weekly' && currentStartWeek && currentEndWeek) {
+      queryParams = `&startWeek=${currentStartWeek}&endWeek=${currentEndWeek}`;
+    } else if (currentPeriod === 'monthly' && currentStartMonth && currentEndMonth) {
+      queryParams = `&startMonth=${currentStartMonth}&endMonth=${currentEndMonth}`;
+    } else if (currentPeriod === 'yearly' && currentStartYear && currentEndYear) {
+      queryParams = `&startYear=${currentStartYear}&endYear=${currentEndYear}`;
+    }
+    
+    loadAnalytics(currentPeriod, queryParams).finally(() => {
+      icon.classList.remove('fa-spin');
+    });
+  });
+
+      // Toggle Chart Type
+      document.querySelectorAll('.tab-button').forEach(btn => {
+        btn.addEventListener('click', function() {
+          const chartType = this.dataset.chartType;
+          const viewType = this.dataset.view;
+          
+          document.querySelectorAll(`.tab-button[data-chart-type="${chartType}"]`).forEach(b => {
+            b.classList.remove('active');
+          });
+          this.classList.add('active');
+          
+          if (chartType === 'room') {
+            currentRoomViewType = viewType;
+            if (analyticsData.eventPerRoom) {
+              renderEventPerRoomChart(analyticsData.eventPerRoom);
+            }
+          }
+        });
+      });
+
+      // Chart 1: Event per Room (Toggle Pie/Bar)
+      function renderEventPerRoomChart(data) {
+        const ctx = document.getElementById('eventPerRoomChart');
+        if (!ctx) return;
+        
+        const colors = ['#60a5fa', '#34d399', '#fbbf24', '#f87171', '#a78bfa', '#fb923c', '#10b981', '#f472b6'];
+        
+        if (charts.eventPerRoom) {
+          charts.eventPerRoom.destroy();
+        }
+        
+        const chartType = currentRoomViewType === 'pie' ? 'doughnut' : 'bar';
+        
+        charts.eventPerRoom = new Chart(ctx.getContext('2d'), {
+          type: chartType,
+          data: {
+            labels: data.map(d => d.room_name || 'Tanpa Ruangan'),
+            datasets: [{
+              label: 'Jumlah Event',
+              data: data.map(d => d.count),
+              backgroundColor: chartType === 'doughnut' ? colors : 'rgba(59, 130, 246, 0.6)',
+              borderColor: chartType === 'doughnut' ? '#fff' : '#3b82f6',
+              borderWidth: 2
+            }]
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+              legend: {
+                position: 'bottom',
+                labels: { font: { size: 12 } }
+              }
+            },
+            scales: chartType === 'bar' ? {
+              y: { beginAtZero: true }
+            } : undefined
+          }
+        });
+      }
+    
+      // Chart 2: Event per Month (Line Chart dengan Gradient)
+      function renderEventPerMonthChart(data) {
+        const ctx = document.getElementById('eventPerMonthChart');
+        if (!ctx) return;
+        
+        if (charts.eventPerMonth) {
+          charts.eventPerMonth.destroy();
+        }
+        
+        // Calculate trend
+        const counts = data.map(d => d.count);
+        if (counts.length === 0) return;
+        
+        const firstHalf = counts.slice(0, Math.floor(counts.length / 2)).reduce((a, b) => a + b, 0) / Math.max(Math.floor(counts.length / 2), 1);
+        const secondHalf = counts.slice(Math.floor(counts.length / 2)).reduce((a, b) => a + b, 0) / Math.max(Math.ceil(counts.length / 2), 1);
+        const trendText = secondHalf > firstHalf ? '📈 Trend Naik' : '📉 Trend Turun';
+        const avgEvents = Math.round(counts.reduce((a, b) => a + b, 0) / Math.max(counts.length, 1));
+        
+        const trendElement = document.getElementById('monthTrend');
+        if (trendElement) {
+          trendElement.textContent = `${trendText} | Rata-rata: ${avgEvents} event/periode`;
+        }
+        
+        charts.eventPerMonth = new Chart(ctx.getContext('2d'), {
+          type: 'line',
+          data: {
+            labels: data.map(d => d.month),
+            datasets: [{
+              label: 'Jumlah Event',
+              data: data.map(d => d.count),
+              borderColor: '#10b981',
+              backgroundColor: 'rgba(16, 185, 129, 0.1)',
+              tension: 0.4,
+              fill: true,
+              pointBackgroundColor: '#10b981',
+              pointBorderColor: '#fff',
+              pointBorderWidth: 2,
+              pointRadius: 5,
+              pointHoverRadius: 7
+            }]
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+              legend: { display: true, labels: { font: { size: 12 } } }
+            },
+            scales: {
+              y: {
+                beginAtZero: true,
+                ticks: { stepSize: 1 }
+              }
+            }
+          }
+        });
+      }
+    
+      // Chart 3: Occupancy Rate (Horizontal Bar)
+      function renderOccupancyRateChart(data) {
+        const ctx = document.getElementById('occupancyRateChart');
+        if (!ctx) return;
+        
+        if (charts.occupancyRate) {
+          charts.occupancyRate.destroy();
+        }
+        
+        const occupancyRates = data.map(d => d.capacity > 0 ? Math.round((d.participants / d.capacity) * 100) : 0);
+        
+        charts.occupancyRate = new Chart(ctx.getContext('2d'), {
+          type: 'bar',
+          data: {
+            labels: data.map(d => d.room_name || 'Tanpa Ruangan'),
+            datasets: [{
+              label: 'Tingkat Okupansi (%)',
+              data: occupancyRates,
+              backgroundColor: occupancyRates.map(rate => 
+                rate >= 80 ? '#10b981' : rate >= 50 ? '#f59e0b' : '#ef4444'
+              ),
+              borderColor: '#fff',
+              borderWidth: 2
+            }]
+          },
+          options: {
+            indexAxis: 'y',
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+              legend: { display: true, labels: { font: { size: 12 } } }
+            },
+            scales: {
+              x: {
+                beginAtZero: true,
+                max: 100,
+                ticks: { callback: v => v + '%' }
+              }
+            }
+          }
+        });
+      }
+    
+      // Chart 4: Event per Hour
+      function renderEventPerHourChart(data) {
+        const ctx = document.getElementById('eventPerHourChart');
+        if (!ctx) return;
+        
+        if (charts.eventPerHour) {
+          charts.eventPerHour.destroy();
+        }
+        
+        const maxEvents = Math.max(...data.map(d => d.count), 1);
+        
+        charts.eventPerHour = new Chart(ctx.getContext('2d'), {
+          type: 'bar',
+          data: {
+            labels: data.map(d => d.hour),
+            datasets: [{
+              label: 'Jumlah Event',
+              data: data.map(d => d.count),
+              backgroundColor: data.map(d => {
+                const intensity = d.count / maxEvents;
+                return `rgba(245, 158, 11, ${0.4 + intensity * 0.6})`;
+              }),
+              borderColor: '#f59e0b',
+              borderWidth: 1
+            }]
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+              legend: { display: true, labels: { font: { size: 12 } } }
+            },
+            scales: {
+              y: { beginAtZero: true, ticks: { stepSize: 1 } }
+            }
+          }
+        });
+      }
+    
+      // Chart 5: Duration Distribution (Pie)
+      function renderDurationDistributionChart(data) {
+        const ctx = document.getElementById('durationDistributionChart');
+        if (!ctx) return;
+        
+        if (charts.durationDistribution) {
+          charts.durationDistribution.destroy();
+        }
+    
+        // Default data jika tidak ada
+        const durationData = data.length > 0 ? data : [
+          { duration_range: '<1 jam', count: 0 },
+          { duration_range: '1-2 jam', count: 0 },
+          { duration_range: '2-4 jam', count: 0 },
+          { duration_range: '>4 jam', count: 0 }
+        ];
+        
+        charts.durationDistribution = new Chart(ctx.getContext('2d'), {
+          type: 'doughnut',
+          data: {
+            labels: durationData.map(d => d.duration_range),
+            datasets: [{
+              data: durationData.map(d => d.count),
+              backgroundColor: ['#3b82f6', '#10b981', '#f59e0b', '#ef4444'],
+              borderColor: '#fff',
+              borderWidth: 2
+            }]
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+              legend: { position: 'bottom', labels: { font: { size: 11 } } }
+            }
+          }
+        });
+      }
+    
+      // Chart 6: Event Status
+      function renderEventStatusChart(data) {
+        const ctx = document.getElementById('eventStatusChart');
+        if (!ctx) return;
+        
+        if (charts.eventStatus) {
+          charts.eventStatus.destroy();
+        }
+    
+        const statusData = data.upcoming || 0;
+        const passedData = data.passed || 0;
+        
+        charts.eventStatus = new Chart(ctx.getContext('2d'), {
+          type: 'doughnut',
+          data: {
+            labels: ['Mendatang', 'Sudah Berlalu'],
+            datasets: [{
+              data: [statusData, passedData],
+              backgroundColor: ['#3b82f6', '#d1d5db'],
+              borderColor: '#fff',
+              borderWidth: 2
+            }]
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+              legend: { position: 'bottom', labels: { font: { size: 11 } } }
+            }
+          }
+        });
+      }
+    
+      // Render Table
+      function renderRoomDetailTable(data) {
+        const tableBody = document.getElementById('roomDetailTable');
+        if (!tableBody) return;
+        
+        if (data.length === 0) {
+          tableBody.innerHTML = '<tr><td colspan="7" class="px-4 py-8 text-center text-gray-500">Belum ada data ruangan</td></tr>';
+          return;
+        }
+    
+        tableBody.innerHTML = data.map(room => {
+          const utilizationPercent = room.totalEvents > 0 && room.capacity > 0 
+            ? Math.round((room.avgParticipants / room.capacity) * 100) 
+            : 0;
+          
+          let statusBadge = '';
+          if (utilizationPercent >= 80) {
+            statusBadge = '<span class="px-2 py-1 bg-green-100 text-green-700 text-xs rounded-full font-semibold">Optimal</span>';
+          } else if (utilizationPercent >= 50) {
+            statusBadge = '<span class="px-2 py-1 bg-yellow-100 text-yellow-700 text-xs rounded-full font-semibold">Normal</span>';
+          } else {
+            statusBadge = '<span class="px-2 py-1 bg-red-100 text-red-700 text-xs rounded-full font-semibold">Kurang dimanfaatkan</span>';
+          }
+          
+          return `
+            <tr class="hover:bg-gray-50">
+              <td class="px-4 py-3">
+                <div class="flex items-center gap-2">
+                  <div class="w-3 h-3 rounded-full" style="background-color: ${room.color || '#60a5fa'}"></div>
+                  <span class="font-semibold text-gray-900">${room.room_name || 'Unknown'}</span>
+                </div>
+              </td>
+              <td class="px-4 py-3 text-gray-700">${room.capacity || 0}</td>
+              <td class="px-4 py-3 text-gray-700 font-semibold">${room.totalEvents || 0}</td>
+              <td class="px-4 py-3 text-gray-700">${room.totalParticipants || 0}</td>
+              <td class="px-4 py-3 text-gray-700">${Math.round(room.avgParticipants || 0)}</td>
+              <td class="px-4 py-3">
+                <div class="flex items-center gap-2">
+                  <div class="w-20 bg-gray-200 rounded-full h-2">
+                    <div class="bg-blue-500 h-2 rounded-full" style="width: ${Math.min(utilizationPercent, 100)}%"></div>
+                  </div>
+                  <span class="text-xs font-bold">${utilizationPercent}%</span>
+                </div>
+              </td>
+              <td class="px-4 py-3">${statusBadge}</td>
+            </tr>
+          `;
+        }).join('');
+      }
+    
+      // Render Summaries
+      function renderSummaries(data) {
+        // Peak Hours
+        const peakHourElement = document.getElementById('peakHoursSummary');
+        if (peakHourElement && data.eventPerHour && data.eventPerHour.length > 0) {
+          const peakHour = data.eventPerHour.reduce((max, current) => 
+            current.count > max.count ? current : max
+          );
+          peakHourElement.innerHTML = `
+            <p class="font-semibold text-gray-900">${peakHour.hour}</p>
+            <p class="text-sm text-gray-600">${peakHour.count} event</p>
+          `;
+        }
+    
+        // Top Rooms
+        const topRoomsElement = document.getElementById('topRoomsSummary');
+        if (topRoomsElement && data.eventPerRoom && data.eventPerRoom.length > 0) {
+          const topRooms = data.eventPerRoom.slice(0, 3);
+          topRoomsElement.innerHTML = topRooms.map((room, idx) => `
+            <div class="flex justify-between items-center pb-2 border-b last:border-b-0">
+              <span class="text-sm text-gray-700">${idx + 1}. ${room.room_name || 'Unknown'}</span>
+              <span class="font-bold text-blue-600">${room.count}</span>
+            </div>
+          `).join('');
+        }
+    
+        // General Stats
+        const statsElement = document.getElementById('generalStatsSummary');
+        if (statsElement && data.roomDetails && data.roomDetails.length > 0) {
+          const avgParticipants = Math.round(data.totalParticipants / Math.max(data.totalEvents, 1));
+          const avgCapacity = Math.round(data.roomDetails.reduce((sum, r) => sum + (r.capacity || 0), 0) / Math.max(data.roomDetails.length, 1));
+          const totalCapacity = data.roomDetails.reduce((sum, r) => sum + (r.capacity || 0), 0);
+          // ✅ PERBAIKI: Utilisasi Total = (total peserta / total kapasitas) * 100
+          const utilizationRate = totalCapacity > 0 ? Math.round((data.totalParticipants / totalCapacity) * 100) : 0;
+        
+          statsElement.innerHTML = `
+            <div class="pb-2 border-b">
+              <p class="text-xs text-gray-600">Rata-rata Peserta/Event</p>
+              <p class="text-lg font-bold text-gray-900">${avgParticipants} orang</p>
+            </div>
+            <div class="pb-2 border-b">
+              <p class="text-xs text-gray-600">Kapasitas Rata-rata Ruangan</p>
+              <p class="text-lg font-bold text-gray-900">${avgCapacity} orang</p>
+            </div>
+            <div>
+              <p class="text-xs text-gray-600">Utilisasi Total</p>
+              <p class="text-lg font-bold text-gray-900">${utilizationRate}%</p>
+            </div>
+          `;
+        }
+
+      }
+    
+      // Load analytics on page load
+      document.addEventListener('DOMContentLoaded', () => {
+        loadAnalytics('all');
+      });
+    </script>
+  </body>
+</html>
