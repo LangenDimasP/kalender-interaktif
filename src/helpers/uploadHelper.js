@@ -1,53 +1,23 @@
 const multer = require('multer');
 const path = require('path');
-const fs = require('fs');
+const ImageKit = require("imagekit");
 
-// ✅ PERBAIKAN: Buat folder uploads & documentations jika belum ada
-const uploadDir = path.join(__dirname, '../../public/uploads');
-const docDir = path.join(uploadDir, 'documentations');
-
-if (!fs.existsSync(uploadDir)) {
-    fs.mkdirSync(uploadDir, { recursive: true });
-}
-if (!fs.existsSync(docDir)) {
-    fs.mkdirSync(docDir, { recursive: true });
-}
-
-// ✅ PERBAIKAN: Storage dengan folder dinamis
-const storage = multer.diskStorage({
-    destination: function (req, file, cb) {
-        // Jika dari dokumentasi event, simpan di folder terpisah
-        const dest = req.body.isDocs || req.path.includes('documentations') 
-            ? docDir 
-            : uploadDir;
-        cb(null, dest);
-    },
-    filename: function (req, file, cb) {
-        // Nama file: timestamp-random-namaasli
-        const timestamp = Date.now();
-        const random = Math.floor(Math.random() * 10000);
-        const originalName = path.basename(file.originalname, path.extname(file.originalname))
-            .replace(/[^a-z0-9]/gi, '-')
-            .toLowerCase();
-        
-        cb(null, `${timestamp}-${random}-${originalName}${path.extname(file.originalname)}`);
-    }
+// 1. Setup ImageKit
+const imagekit = new ImageKit({
+    publicKey: process.env.IMAGEKIT_PUBLIC_KEY,
+    privateKey: process.env.IMAGEKIT_PRIVATE_KEY,
+    urlEndpoint: process.env.IMAGEKIT_URL_ENDPOINT
 });
 
-// ✅ PERBAIKAN: Filter untuk gambar & video
+// 2. Setup Multer (GANTI DARI DISK KE MEMORY)
+// File akan disimpan di RAM (buffer) sebelum dikirim ke ImageKit
+const storage = multer.memoryStorage();
+
+// 3. Filter File (Tetap sama seperti sebelumnya)
 const fileFilter = (req, file, cb) => {
     const allowedMimes = [
-        // Gambar
-        'image/jpeg',
-        'image/png',
-        'image/gif',
-        'image/webp',
-        'image/svg+xml',
-        // Video
-        'video/mp4',
-        'video/webm',
-        'video/quicktime', // MOV
-        'video/x-msvideo', // AVI
+        'image/jpeg', 'image/png', 'image/gif', 'image/webp', 'image/svg+xml', // Gambar
+        'video/mp4', 'video/webm', 'video/quicktime', 'video/x-msvideo', // Video
     ];
 
     if (allowedMimes.includes(file.mimetype)) {
@@ -57,28 +27,53 @@ const fileFilter = (req, file, cb) => {
     }
 };
 
-// ✅ PERBAIKAN: Upload untuk poster/single file (2MB)
+// 4. Konfigurasi Upload Poster (Single, Max 5MB)
 const uploadPoster = multer({
     storage: storage,
     fileFilter: (req, file, cb) => {
-        // Hanya gambar untuk poster
         if (file.mimetype.startsWith('image/')) {
             cb(null, true);
         } else {
             cb(new Error('Hanya file gambar yang diperbolehkan untuk poster!'), false);
         }
     },
-    limits: { fileSize: 2 * 1024 * 1024 } // 2MB
+    limits: { fileSize: 5 * 1024 * 1024 } // Naikkan ke 5MB untuk aman
 });
 
-// ✅ PERBAIKAN: Upload untuk dokumentasi/multiple file (50MB)
+// 5. Konfigurasi Upload Dokumentasi (Multiple, Max 50MB)
 const uploadDocumentation = multer({
     storage: storage,
     fileFilter: fileFilter,
     limits: { fileSize: 50 * 1024 * 1024 } // 50MB
 });
 
-// ✅ PERBAIKAN: Export kedua config
-module.exports = uploadPoster; // Default untuk backward compatibility
-module.exports.uploadPoster = uploadPoster;
-module.exports.uploadDocumentation = uploadDocumentation;
+// 6. Helper Function: Upload ke ImageKit
+// Panggil fungsi ini di Controller Anda setelah upload.single/array
+const uploadToImageKit = async (file, folderName = '/agenda-cerdas') => {
+    try {
+        // Generate nama file unik agar tidak tertimpa
+        const timestamp = Date.now();
+        const originalName = path.basename(file.originalname, path.extname(file.originalname))
+            .replace(/[^a-z0-9]/gi, '-')
+            .toLowerCase();
+        const fileName = `${timestamp}-${originalName}`;
+
+        const result = await imagekit.upload({
+            file: file.buffer, // Ambil dari RAM
+            fileName: fileName,
+            folder: folderName // Folder di ImageKit
+        });
+        
+        return result; // Mengembalikan object { url, fileId, ... }
+    } catch (error) {
+        throw error;
+    }
+};
+
+// Export
+module.exports = {
+    uploadPoster,
+    uploadDocumentation,
+    uploadToImageKit,
+    imagekit // Export instance jika butuh delete file nanti
+};

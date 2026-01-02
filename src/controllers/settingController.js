@@ -1,4 +1,5 @@
 const db = require('../../config/db');
+const bcrypt = require('bcrypt'); // Jika perlu untuk hash PIN
 
 // Ambil Status Setting Saat Ini
 exports.getSettings = async (req, res) => {
@@ -32,6 +33,7 @@ exports.getSettings = async (req, res) => {
         res.status(500).json({ error: err.message });
     }
 };
+
 // Update Status Setting
 exports.toggleDoubleBooking = async (req, res) => {
     try {
@@ -58,6 +60,56 @@ exports.toggleDoubleBooking = async (req, res) => {
         });
     } catch (err) {
         console.error('Toggle error:', err);
+        res.status(500).json({ error: err.message });
+    }
+};
+
+// ✅ TAMBAH: Set PIN untuk Kalender
+exports.setPin = async (req, res) => {
+    try {
+        const { calendarName } = req.params;
+        const { pin } = req.body;
+
+        if (!pin || pin.length < 4) {
+            return res.status(400).json({ error: 'PIN harus minimal 4 karakter' });
+        }
+
+        // Hash PIN
+        const saltRounds = 10;
+        const pinHash = await bcrypt.hash(pin, saltRounds);
+
+        // Update PIN di calendars table
+        await db.query(
+            "UPDATE calendars SET pin_hash = ? WHERE name = ?",
+            [pinHash, calendarName]
+        );
+
+        res.json({ success: true, message: 'PIN berhasil diset' });
+    } catch (err) {
+        console.error('Set PIN error:', err);
+        res.status(500).json({ error: err.message });
+    }
+};
+
+// ✅ TAMBAH: Verify PIN
+exports.verifyPin = async (req, res) => {
+    try {
+        const { calendarName } = req.params;
+        const { pin } = req.body;
+
+        const [calendarRows] = await db.query(
+            "SELECT pin_hash FROM calendars WHERE name = ?",
+            [calendarName]
+        );
+
+        if (calendarRows.length === 0 || !calendarRows[0].pin_hash) {
+            return res.status(400).json({ error: 'PIN tidak diset' });
+        }
+
+        const isValid = await bcrypt.compare(pin, calendarRows[0].pin_hash);
+        res.json({ valid: isValid });
+    } catch (err) {
+        console.error('Verify PIN error:', err);
         res.status(500).json({ error: err.message });
     }
 };

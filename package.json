@@ -18,6 +18,7 @@
     "express": "^5.2.1",
     "express-session": "^1.18.2",
     "html2pdf": "^0.0.11",
+    "imagekit": "^6.0.0",
     "jspdf": "^2.5.1",
     "jspdf-autotable": "^3.5.25",
     "moment": "^2.30.1",

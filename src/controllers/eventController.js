@@ -1,6 +1,7 @@
 const db = require("../../config/db");
 const path = require("path");
 const fs = require("fs");
+const { uploadToImageKit } = require("../helpers/uploadHelper"); // ✅ TAMBAH IMPORT
 
 // Helper function untuk cek bentrok
 async function checkConflict(
@@ -112,7 +113,7 @@ exports.getEvents = async (req, res) => {
   }
 };
 
-// ✅ TAMBAH: Upload Dokumentasi
+// ✅ TAMBAH: Upload Dokumentasi (DIUBAH KE CLOUD)
 exports.uploadDocumentation = async (req, res) => {
   try {
     const { calendarName, id } = req.params;
@@ -131,22 +132,25 @@ exports.uploadDocumentation = async (req, res) => {
       return res.status(400).json({ message: "File tidak ditemukan" });
     }
 
+    // ✅ UPLOAD KE IMAGEKIT
+    const uploadResult = await uploadToImageKit(req.file, '/agenda-cerdas/documentations');
+    const fileUrl = uploadResult.url; // URL Cloud
+
     // Tentukan tipe file (image atau video)
     const fileType = req.file.mimetype.startsWith("video") ? "video" : "image";
-    const filePath = `/uploads/documentations/${req.file.filename}`;
 
-    // Simpan ke database
+    // Simpan ke database (gunakan URL, bukan path lokal)
     const [result] = await db.query(
       `INSERT INTO event_documentations 
        (event_id, calendar_name, file_path, file_type, file_name)
        VALUES (?, ?, ?, ?, ?)`,
-      [id, calendarName, filePath, fileType, req.file.originalname]
+      [id, calendarName, fileUrl, fileType, req.file.originalname]
     );
 
     res.status(201).json({
       success: true,
       id: result.insertId,
-      file_path: filePath,
+      file_path: fileUrl,
       file_type: fileType,
       file_name: req.file.originalname,
     });
@@ -156,7 +160,7 @@ exports.uploadDocumentation = async (req, res) => {
   }
 };
 
-// ✅ TAMBAH: Hapus Dokumentasi
+// ✅ TAMBAH: Hapus Dokumentasi (TAMBAH HAPUS DARI CLOUD JIKA PERLU)
 exports.deleteDocumentation = async (req, res) => {
   try {
     const { calendarName, eventId, docId } = req.params;
@@ -173,10 +177,18 @@ exports.deleteDocumentation = async (req, res) => {
       return res.status(404).json({ message: "Dokumentasi tidak ditemukan" });
     }
 
-    // Hapus file fisik
-    const filePath = path.join(__dirname, "../../public", doc[0].file_path);
-    if (fs.existsSync(filePath)) {
-      fs.unlinkSync(filePath);
+    // ✅ JIKA MASIH PAKAI PATH LOKAL, HAPUS FILE FISIK (UNTUK KOMPATIBILITAS)
+    // Tapi sebaiknya hapus dari ImageKit jika URL Cloud
+    const filePath = doc[0].file_path;
+    if (filePath.startsWith('/uploads/')) {
+      const localPath = path.join(__dirname, "../../public", filePath);
+      if (fs.existsSync(localPath)) {
+        fs.unlinkSync(localPath);
+      }
+    } else {
+      // Jika URL Cloud, hapus dari ImageKit (opsional, tambahkan jika perlu)
+      // const { imagekit } = require("../helpers/uploadHelper");
+      // await imagekit.deleteFile(filePath.split('/').pop()); // Ambil fileId dari URL
     }
 
     // Hapus dari database
@@ -192,7 +204,7 @@ exports.deleteDocumentation = async (req, res) => {
   }
 };
 
-// 2. Simpan Event Baru
+// 2. Simpan Event Baru (DIUBAH KE CLOUD)
 exports.createEvent = async (req, res) => {
   try {
     const { calendarName } = req.params;
@@ -208,7 +220,13 @@ exports.createEvent = async (req, res) => {
       notes,
       meeting_link,  // ✅ TAMBAH
     } = req.body;
-    const poster_path = req.file ? `/uploads/${req.file.filename}` : null;
+
+    // ✅ UPLOAD POSTER KE IMAGEKIT JIKA ADA
+    let posterUrl = null;
+    if (req.file) {
+      const uploadResult = await uploadToImageKit(req.file, '/agenda-cerdas/posters');
+      posterUrl = uploadResult.url; // URL Cloud
+    }
 
     // Validasi field wajib
     if (
@@ -258,7 +276,7 @@ exports.createEvent = async (req, res) => {
       organizer_phone,
       pic_name,
       participants_count || 0,
-      poster_path,
+      posterUrl,  // ✅ GUNAKAN URL CLOUD
       notes,
       meeting_link || null,  // ✅ TAMBAH
     ]);
@@ -346,14 +364,24 @@ exports.deleteEvent = async (req, res) => {
       if (event.length === 0)
         return res.status(404).json({ message: "Event not found" });
 
-      if (event[0].poster_path) {
-        const filePath = path.join(
-          __dirname,
-          "../../public",
-          event[0].poster_path
-        );
-        if (fs.existsSync(filePath)) {
-          fs.unlinkSync(filePath);
+      // ✅ HAPUS POSTER DARI CLOUD JIKA URL (ATAU LOKAL JIKA MASIH ADA)
+      const posterPath = event[0].poster_path;
+      if (posterPath) {
+        if (posterPath.startsWith('http')) {
+          // Hapus dari ImageKit
+          const { imagekit } = require("../helpers/uploadHelper");
+          const fileId = posterPath.split('/').pop().split('.')[0]; // Asumsi fileId adalah nama file tanpa ekstensi
+          await imagekit.deleteFile(fileId);
+        } else {
+          // Hapus lokal
+          const filePath = path.join(
+            __dirname,
+            "../../public",
+            posterPath
+          );
+          if (fs.existsSync(filePath)) {
+            fs.unlinkSync(filePath);
+          }
         }
       }
 
@@ -411,7 +439,6 @@ exports.checkAvailability = async (req, res) => {
     res.status(500).json({ error: "Gagal memeriksa ketersediaan" });
   }
 };
-
 
 // 6. Update Event Details
 exports.updateEventDetails = async (req, res) => {
@@ -570,7 +597,8 @@ exports.updateEventDetails = async (req, res) => {
     res.status(500).json({ error: err.message });
   }
 };
-// 7. Upload/Update Poster Event
+
+// 7. Upload/Update Poster Event (DIUBAH KE CLOUD)
 exports.uploadPoster = async (req, res) => {
   try {
     const { calendarName, id } = req.params;
@@ -586,20 +614,30 @@ exports.uploadPoster = async (req, res) => {
     // Hapus poster lama jika ada
     const oldPoster = eventRows[0].poster_path;
     if (oldPoster) {
-      const oldPath = path.join(__dirname, "../../public", oldPoster);
-      if (fs.existsSync(oldPath)) fs.unlinkSync(oldPath);
+      if (oldPoster.startsWith('http')) {
+        // Hapus dari ImageKit
+        const { imagekit } = require("../helpers/uploadHelper");
+        const fileId = oldPoster.split('/').pop().split('.')[0]; // Asumsi fileId
+        await imagekit.deleteFile(fileId);
+      } else {
+        // Hapus lokal
+        const oldPath = path.join(__dirname, "../../public", oldPoster);
+        if (fs.existsSync(oldPath)) fs.unlinkSync(oldPath);
+      }
     }
 
-    // Simpan poster baru
-    const poster_path = req.file ? `/uploads/${req.file.filename}` : null;
-    if (!poster_path)
+    // ✅ UPLOAD POSTER BARU KE IMAGEKIT
+    if (!req.file)
       return res.status(400).json({ message: "File poster tidak ditemukan" });
+
+    const uploadResult = await uploadToImageKit(req.file, '/agenda-cerdas/posters');
+    const posterUrl = uploadResult.url; // URL Cloud
 
     await db.query(
       "UPDATE events SET poster_path = ? WHERE id = ? AND calendar_name = ?",
-      [poster_path, id, calendarName]
+      [posterUrl, id, calendarName]  // ✅ SIMPAN URL
     );
-    res.json({ poster_path });
+    res.json({ poster_path: posterUrl });
   } catch (err) {
     res.status(500).json({ message: "Gagal upload poster" });
   }

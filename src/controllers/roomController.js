@@ -208,3 +208,55 @@ exports.moveRoomUp = async (req, res) => {
     res.status(500).json({ error: "Gagal mengubah urutan ruangan" });
   }
 };
+
+// 5. Move Room Down
+exports.moveRoomDown = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const calendarName = req.params.calendarName;
+
+    // ✅ Ambil room yang ingin diturunkan
+    const [currentRoom] = await db.query(
+      "SELECT * FROM rooms WHERE id = ? AND calendar_name = ?",
+      [id, calendarName]
+    );
+
+    if (currentRoom.length === 0) {
+      return res.status(404).json({ error: "Ruangan tidak ditemukan" });
+    }
+
+    const room = currentRoom[0];
+    const currentOrder = room.display_order;
+
+    // ✅ Cari ruangan dengan display_order lebih besar (terendah)
+    const [nextRoom] = await db.query(
+      "SELECT * FROM rooms WHERE calendar_name = ? AND display_order > ? ORDER BY display_order ASC LIMIT 1",
+      [calendarName, currentOrder]
+    );
+
+    if (nextRoom.length === 0) {
+      return res.status(400).json({ error: "Ruangan sudah di posisi terbawah" });
+    }
+
+    const nextOrder = nextRoom[0].display_order;
+
+    // ✅ SWAP display_order
+    await db.query(
+      "UPDATE rooms SET display_order = ? WHERE id = ? AND calendar_name = ?",
+      [nextOrder, id, calendarName]
+    );
+
+    await db.query(
+      "UPDATE rooms SET display_order = ? WHERE id = ? AND calendar_name = ?",
+      [currentOrder, nextRoom[0].id, calendarName]
+    );
+
+    res.json({ 
+      success: true, 
+      message: "✅ Urutan ruangan berhasil diubah" 
+    });
+  } catch (error) {
+    console.error("Error moving room:", error);
+    res.status(500).json({ error: "Gagal mengubah urutan ruangan" });
+  }
+};
