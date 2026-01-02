@@ -73,7 +73,13 @@ app.get('/api/holidays', (req, res) => {
     }
 });
 
-// Start Server
-app.listen(PORT, () => {
-    console.log(`✅ Server running at http://localhost:${PORT}`);
-});
+// Start Server - Kompatibel dengan Vercel & Localhost
+if (process.env.VERCEL) {
+    // ✅ Jika di Vercel, export app sebagai function
+    module.exports = app;
+} else {
+    // ✅ Jika di localhost, jalankan server biasa
+    app.listen(PORT, () => {
+        console.log(`✅ Server running at http://localhost:${PORT}`);
+    });
+}
