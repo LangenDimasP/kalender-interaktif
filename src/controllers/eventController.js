@@ -57,9 +57,12 @@ exports.getEvents = async (req, res) => {
         [event.id]
       );
 
+      // ✅ PERBAIKI: Jangan tambah (pic_name) di sini!
+      // ❌ SEBELUMNYA: title: `${event.title} (${event.pic_name})`
+      // ✅ SEKARANG:
       return {
         id: event.id,
-        title: event.title + (event.pic_name ? ` (${event.pic_name})` : ""),
+        title: event.title,  // ✅ HANYA title asli, TANPA pic_name atau location
         start: event.start_time,
         end: event.end_time,
         backgroundColor: event.room_color || "#60a5fa",
@@ -70,12 +73,12 @@ exports.getEvents = async (req, res) => {
           room_color: event.room_color,
           organizer_name: event.organizer_name,
           organizer_phone: event.organizer_phone,
-          pic_name: event.pic_name,
+          pic_name: event.pic_name,  // ✅ Kirim sebagai extended prop (TERPISAH)
           participants_count: event.participants_count,
           notes: event.notes,
           poster_path: event.poster_path,
           meeting_link: event.meeting_link,
-          documentations: docs,  // ✅ TAMBAH
+          documentations: docs,
         },
       };
     }));

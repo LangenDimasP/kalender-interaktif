@@ -2398,20 +2398,6 @@ document.addEventListener('DOMContentLoaded', function() {
             throw new Error("Response format invalid");
           }
 
-          // === GANTI: Judul event, yang di dalam kurung adalah nama ruangan ===
-          events = events.map(e => {
-            // Hanya untuk event biasa (bukan holiday/reminder)
-            if (
-              !e.extendedProps?.isHoliday &&
-              !e.extendedProps?.isReminder &&
-              e.extendedProps?.room_name
-            ) {
-              // Hilangkan (PIC) jika ada, lalu tambahkan (Nama Ruangan)
-              e.title = e.title.replace(/\s*\(.*?\)$/, "") + ` (${e.extendedProps.room_name})`;
-            }
-            return e;
-          });
-
           // Apply filter
           if (activeRoomFilter !== "all") {
             // Tampilkan event yang:
@@ -2435,11 +2421,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
 
       eventDidMount: function (info) {
-  
-  const color =
-    info.event.extendedProps.room_color || info.event.backgroundColor;
-
-  // ✅ CEK TIPE EVENT
+  const color = info.event.extendedProps.room_color || info.event.backgroundColor;
   const isHoliday = info.event.extendedProps.isHoliday || false;
   const isReminder = info.event.extendedProps.isReminder || false;
 
@@ -2450,12 +2432,40 @@ document.addEventListener('DOMContentLoaded', function() {
     info.el.style.borderColor = "transparent";
     info.el.style.color = color;
 
+    const titleEls = info.el.querySelectorAll(".fc-event-title");
+    if (titleEls.length > 1) {
+      console.warn("⚠️ Ada lebih dari satu .fc-event-title di event:", info.event.title, titleEls);
+      for (let i = 1; i < titleEls.length; i++) {
+        titleEls[i].remove();
+      }
+    }
+
     const titleEl = info.el.querySelector(".fc-event-title");
     if (titleEl) {
       titleEl.style.color = color;
       titleEl.style.fontWeight = "600";
+      
+      // ✅ PERBAIKI: Ambil title ASLI (tanpa location/pic)
+      let originalTitle = info.event.title;
+      
+      // ✅ HAPUS location dari title jika ada di akhir
+      const locationMatch = originalTitle.match(/\s*\([^)]+\)$/);
+      if (locationMatch) {
+        originalTitle = originalTitle.replace(locationMatch[0], "").trim();
+      }
+      
+      // ✅ TRUNCATE HANYA TITLE ASLI (tanpa location)
+      const truncatedTitle = truncateText(originalTitle, 25);
+      
+      // ✅ TAMBAH location kembali SETELAH truncate
+      const picName = info.event.extendedProps.pic_name;
+      const displayTitle = picName && picName !== '-' 
+        ? `${truncatedTitle} (${picName})`
+        : truncatedTitle;
+      
+      titleEl.innerText = displayTitle;
+      titleEl.title = originalTitle + (picName ? ` (${picName})` : "");
     }
-
     info.el.style.boxShadow = `0 2px 4px ${color}30`;
     
     // Set transition selalu untuk animasi
@@ -4009,13 +4019,7 @@ document.addEventListener("click", function(e) {
   
       if (event) {
         if (currentEditMode === "eventTitle") {
-          event.setProp(
-            "title",
-            newValue +
-              (event.extendedProps.pic_name
-                ? ` (${event.extendedProps.pic_name})`
-                : "")
-          );
+          event.setProp("title", newValue);
         } else if (currentEditMode === "reminderDate") {
           event.setStart(newValue);
           event.setEnd(newValue);
@@ -4034,7 +4038,6 @@ document.addEventListener("click", function(e) {
           event.setExtendedProp("organizer_phone", newValue);
         } else if (currentEditMode === "pic") {
           event.setExtendedProp("pic_name", newValue);
-          event.setProp("title", event.title.split(" (")[0] + ` (${newValue})`);
         } else if (currentEditMode === "participants") {
           event.setExtendedProp("participants_count", newValue);
         } else if (currentEditMode === "notes") {
@@ -5304,6 +5307,14 @@ window.cancelRoomEdit = function (roomId, originalName, originalCapacity, origin
   }
 });
 
+function truncateText(text, maxLength = 50) {
+  if (text.length > maxLength) {
+    return text.substring(0, maxLength) + '...';
+  }
+  return text;
+}
+
+
     function renderUpcomingEvents() {
   const listContainer = document.getElementById('upcomingEventsList');
   
@@ -5413,11 +5424,15 @@ window.cancelRoomEdit = function (roomId, originalName, originalCapacity, origin
     const isPast = endDate < now;
     const opacityClass = isPast ? 'opacity-50' : 'opacity-100';
 
+    // ✅ TAMBAH: Truncate judul event (max 40 char)
+    const originalTitle = event.title;
+    const truncatedTitle = truncateText(originalTitle, 40);
+
     return `
       <div 
         class="event-card-new cursor-pointer ${opacityClass} transition"
         onclick="handleEventCardClick('${event.id}')"
-        title="${isPast ? 'Event sudah berlalu' : 'Klik untuk detail'}"
+        title="${isPast ? 'Event sudah berlalu - ' : ''}${originalTitle}"
       >
         <!-- Dot Indicator -->
         <div class="flex items-start gap-3">
@@ -5433,11 +5448,14 @@ window.cancelRoomEdit = function (roomId, originalName, originalCapacity, origin
               ${timeRangeStr}
               ${isPast ? '<span class="ml-2 text-xs">(Sudah lewat)</span>' : ''}
             </div>
-            <div class="event-card-title">${event.title}</div>
+            <!-- ✅ PERBAIKI: Tampilkan truncated title dengan ellipsis -->
+            <div class="event-card-title" title="${originalTitle}">
+              ${truncatedTitle}
+            </div>
             ${event.extendedProps?.room_name ? `
-              <div class="event-card-room">
+              <div class="event-card-room" title="${event.extendedProps.room_name}">
                 <i class="fas fa-door-open"></i>
-                ${event.extendedProps.room_name}
+                ${truncateText(event.extendedProps.room_name, 35)}
               </div>
             ` : ''}
             <div style="font-size: 0.65rem; color: #9ca3af; margin-top: 4px;">
