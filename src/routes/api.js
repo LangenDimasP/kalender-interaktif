@@ -1,6 +1,7 @@
 const express = require("express");
 const router = express.Router();
-const upload = require("../helpers/uploadHelper");
+// ✅ PERBAIKI: Import spesifik multer instances dari uploadHelper
+const { uploadPoster, uploadDocumentation } = require("../helpers/uploadHelper");
 const eventController = require("../controllers/eventController");
 const roomController = require("../controllers/roomController");
 const settingController = require("../controllers/settingController");
@@ -117,7 +118,8 @@ router.get(
 router.post(
   "/:calendarName/events",
   validateCalendar,
-  upload.single("poster"),
+  // ✅ PERBAIKI: Gunakan uploadPoster.single
+  uploadPoster.single("poster"),
   eventController.createEvent
 );
 router.put(
@@ -167,7 +169,8 @@ router.put(
 router.post(
   "/:calendarName/events/:id/poster",
   validateCalendar,
-  upload.single("poster"),
+  // ✅ PERBAIKI: Gunakan uploadPoster.single
+  uploadPoster.single("poster"),
   eventController.uploadPoster
 );
 
@@ -505,19 +508,6 @@ router.delete('/:calendarName/holidays/:id', async (req, res) => {
     });
   }
 });
-
-router.post(
-  "/:calendarName/events/:id/documentations",
-  validateCalendar,
-  upload.uploadDocumentation.single("documentation"),
-  eventController.uploadDocumentation
-);
-
-router.delete(
-  "/:calendarName/events/:eventId/documentations/:docId",
-  validateCalendar,
-  eventController.deleteDocumentation
-);
 
 // ✅ TAMBAH: Route untuk move room up
 router.post(
